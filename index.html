@@ -106,12 +106,8 @@ resize();
 window.addEventListener('resize', resize);
 
 // ── Countdown ───────────────────────────────────────────────────
-const STORAGE_KEY = 'solar_impact_end';
-let END = parseInt(localStorage.getItem(STORAGE_KEY));
-if (!END || END < Date.now()) {
-  END = Date.now() + 2 * 24 * 60 * 60 * 1000;
-  localStorage.setItem(STORAGE_KEY, END);
-}
+// Fixed target date — same for every device, everywhere
+const END = new Date('2026-04-05T12:00:00Z').getTime();
 
 function updateCountdown() {
   const rem = Math.max(0, END - Date.now());
