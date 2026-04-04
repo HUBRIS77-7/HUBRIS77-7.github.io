@@ -106,7 +106,12 @@ resize();
 window.addEventListener('resize', resize);
 
 // ── Countdown ───────────────────────────────────────────────────
-const END = Date.now() + 2 * 24 * 60 * 60 * 1000; // 2 days from now
+const STORAGE_KEY = 'solar_impact_end';
+let END = parseInt(localStorage.getItem(STORAGE_KEY));
+if (!END || END < Date.now()) {
+  END = Date.now() + 2 * 24 * 60 * 60 * 1000;
+  localStorage.setItem(STORAGE_KEY, END);
+}
 
 function updateCountdown() {
   const rem = Math.max(0, END - Date.now());
