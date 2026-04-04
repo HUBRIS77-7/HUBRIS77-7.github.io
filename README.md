@@ -1,1 +1,186 @@
-# HUBRIS77-7.github.io
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CUBE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #050508;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-family: 'Share Tech Mono', monospace;
+      color: #00f5c8;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 25%, #050508 80%);
+      pointer-events: none; z-index: 0;
+    }
+    .scanlines {
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
+      pointer-events: none; z-index: 10;
+    }
+    .bracket { position: fixed; width: 40px; height: 40px; z-index: 11; pointer-events: none; }
+    .bracket::before, .bracket::after { content: ''; position: absolute; background: rgba(0,245,200,0.4); }
+    .bracket::before { width: 100%; height: 1.5px; top: 0; }
+    .bracket::after  { height: 100%; width: 1.5px; top: 0; }
+    .bracket.tl { top: 20px;    left: 20px; }
+    .bracket.tr { top: 20px;    right: 20px;  transform: scaleX(-1); }
+    .bracket.bl { bottom: 20px; left: 20px;   transform: scaleY(-1); }
+    .bracket.br { bottom: 20px; right: 20px;  transform: scale(-1); }
+    .ui {
+      position: relative; z-index: 5;
+      display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;
+    }
+    header { text-align: center; letter-spacing: 0.3em; margin-bottom: 20px; }
+    header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      line-height: 1; color: #00f5c8;
+      text-shadow: 0 0 30px rgba(0,245,200,0.5), 0 0 70px rgba(0,245,200,0.2);
+      letter-spacing: 0.25em;
+    }
+    header p { font-size: 0.6rem; color: rgba(0,245,200,0.35); letter-spacing: 0.6em; margin-top: 6px; }
+    #canvas-wrap { position: relative; cursor: pointer; }
+    #canvas-wrap canvas { display: block; }
+    .hint { font-size: 0.55rem; letter-spacing: 0.2em; color: rgba(0,245,200,0.2); margin-top: 4px; text-align: center; }
+    .readout {
+      display: flex; gap: 28px; font-size: 0.58rem;
+      letter-spacing: 0.15em; color: rgba(0,245,200,0.35);
+      border-top: 1px solid rgba(0,245,200,0.1);
+      padding-top: 14px; margin-top: 10px;
+    }
+    .readout b { color: #00f5c8; font-weight: normal; }
+  </style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="bracket tl"></div>
+<div class="bracket tr"></div>
+<div class="bracket bl"></div>
+<div class="bracket br"></div>
+
+<div class="ui">
+  <header>
+    <h1>CUBE</h1>
+    <p>three-dimensional rendering system</p>
+  </header>
+  <div id="canvas-wrap">
+    <canvas id="c"></canvas>
+  </div>
+  <p class="hint">click to pause &nbsp;·&nbsp; drag to rotate</p>
+  <div class="readout">
+    <span>ROT.X <b id="rx">000°</b></span>
+    <span>ROT.Y <b id="ry">000°</b></span>
+    <span>ROT.Z <b id="rz">000°</b></span>
+    <span>FACES <b>6</b></span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  const canvas = document.getElementById('c');
+  const SIZE = Math.min(window.innerWidth, window.innerHeight, 480);
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(SIZE, SIZE);
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 4.5);
+
+  const geo = new THREE.BoxGeometry(2, 2, 2);
+
+  const faceColors = [0x00f5c8, 0x00f5c8, 0x6c63ff, 0x6c63ff, 0xff3d6b, 0xff3d6b];
+  const materials = faceColors.map(c => new THREE.MeshPhongMaterial({
+    color: c, transparent: true, opacity: 0.15,
+    side: THREE.DoubleSide, depthWrite: false,
+  }));
+  const solidCube = new THREE.Mesh(geo, materials);
+  scene.add(solidCube);
+
+  const wireMat   = new THREE.LineBasicMaterial({ color: 0x00f5c8, transparent: true, opacity: 0.85 });
+  const wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(geo), wireMat);
+  scene.add(wireframe);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const dl = new THREE.DirectionalLight(0x00f5c8, 1.8);
+  dl.position.set(3, 4, 5); scene.add(dl);
+  const dl2 = new THREE.DirectionalLight(0x6c63ff, 0.9);
+  dl2.position.set(-3, -2, -3); scene.add(dl2);
+
+  const rxEl = document.getElementById('rx');
+  const ryEl = document.getElementById('ry');
+  const rzEl = document.getElementById('rz');
+  function fmt(r) { return (((r*180/Math.PI)%360+360)%360).toFixed(0).padStart(3,'0')+'°'; }
+
+  let paused = false, dragging = false, prevX = 0, prevY = 0;
+  const wrap = document.getElementById('canvas-wrap');
+
+  wrap.addEventListener('click', () => { if (!dragging) paused = !paused; });
+  wrap.addEventListener('mousedown', e => {
+    dragging = false; prevX = e.clientX; prevY = e.clientY;
+    const onMove = e => {
+      const dx = e.clientX-prevX, dy = e.clientY-prevY;
+      if (Math.abs(dx)+Math.abs(dy) > 3) dragging = true;
+      solidCube.rotation.y += dx*0.01;
+      solidCube.rotation.x += dy*0.01;
+      wireframe.rotation.copy(solidCube.rotation);
+      prevX = e.clientX; prevY = e.clientY;
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      setTimeout(()=>{ dragging=false; }, 10);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  });
+  wrap.addEventListener('touchstart', e => { prevX=e.touches[0].clientX; prevY=e.touches[0].clientY; });
+  wrap.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const dx=e.touches[0].clientX-prevX, dy=e.touches[0].clientY-prevY;
+    solidCube.rotation.y+=dx*0.01; solidCube.rotation.x+=dy*0.01;
+    wireframe.rotation.copy(solidCube.rotation);
+    prevX=e.touches[0].clientX; prevY=e.touches[0].clientY;
+  }, {passive:false});
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!paused && !dragging) {
+      solidCube.rotation.x += 0.004;
+      solidCube.rotation.y += 0.009;
+      wireframe.rotation.copy(solidCube.rotation);
+    }
+    rxEl.textContent = fmt(solidCube.rotation.x);
+    ryEl.textContent = fmt(solidCube.rotation.y);
+    rzEl.textContent = fmt(solidCube.rotation.z);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    const s = Math.min(window.innerWidth, window.innerHeight, 480);
+    renderer.setSize(s, s);
+  });
+</script>
+</body>
+</html>
