@@ -1,88 +1,337 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>my cool website!!!</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Solar System — Incoming</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000008;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  #wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  canvas {
+    display: block;
+    cursor: grab;
+  }
+
+  /* ── HUD overlay ── */
+  #hud {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: none;
+    z-index: 10;
+  }
+  #hud .label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    color: rgba(100,180,255,0.5);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  #hud .countdown {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    color: #4ab8ff;
+    text-shadow: 0 0 20px rgba(74,184,255,0.8), 0 0 50px rgba(74,184,255,0.3);
+    letter-spacing: 0.08em;
+  }
+  #hud .sublabel {
+    font-size: 0.5rem;
+    letter-spacing: 0.25em;
+    color: rgba(74,184,255,0.35);
+    margin-top: 3px;
+  }
+
+  #alert-bar {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.52rem;
+    letter-spacing: 0.3em;
+    color: rgba(74,184,255,0.4);
+    white-space: nowrap;
+    pointer-events: none;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+</style>
 </head>
-<body bgcolor="yellow">
+<body>
 
-<center>
-  <h1><font color="red" face="Comic Sans MS">WELCOME TO MY WEBSITE!!!!</font></h1>
-  <font face="Comic Sans MS">
-  <marquee><b>~*~ hi i am jake and this is my website ~*~ please sign my guestbook ~*~</b></marquee>
-  </font>
-  <br>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Above_Gotham.jpg" width="300"><br>
-  <font face="Comic Sans MS" size="2"><i>this is a cool pic i found</i></font>
-</center>
+<div id="wrap">
+  <canvas id="c"></canvas>
 
-<hr color="red">
+  <div id="hud">
+    <div class="label">⚠ object 2024-XB7 — impact countdown</div>
+    <div class="countdown" id="cd">48:00:00:00</div>
+    <div class="sublabel">days · hours · minutes · seconds</div>
+  </div>
 
-<font face="Comic Sans MS">
-<h2><font color="purple">about me</font></h2>
-<ul>
-  <li>my name is jake</li>
-  <li>i am 11 years old</li>
-  <li>my favorite color is blue (and red)</li>
-  <li>i like minecraft and pizza</li>
-  <li>i have a dog named biscuit</li>
-</ul>
+  <div id="alert-bar" id="ab">TRAJECTORY LOCKED · ORIGIN: UNKNOWN · VELOCITY: 42.3 km/s</div>
+</div>
 
-<hr color="red">
+<script>
+// ── Canvas setup ────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
 
-<h2><font color="purple">my favorite things</font></h2>
-<table border="3" bgcolor="lime">
-  <tr>
-    <td><b>food</b></td>
-    <td><b>games</b></td>
-    <td><b>movies</b></td>
-  </tr>
-  <tr>
-    <td>pizza</td>
-    <td>minecraft</td>
-    <td>the avengers</td>
-  </tr>
-  <tr>
-    <td>chicken nuggets</td>
-    <td>roblox</td>
-    <td>shrek</td>
-  </tr>
-  <tr>
-    <td>oreos</td>
-    <td>mario kart</td>
-    <td>kung fu panda</td>
-  </tr>
-</table>
+function resize() {
+  const s = Math.min(window.innerWidth, window.innerHeight, 820);
+  canvas.width  = s;
+  canvas.height = s;
+}
+resize();
+window.addEventListener('resize', resize);
 
-<hr color="red">
+// ── Countdown ───────────────────────────────────────────────────
+const END = Date.now() + 2 * 24 * 60 * 60 * 1000; // 2 days from now
 
-<h2><font color="purple">a poem i wrote</font></h2>
-<p>
-roses are red<br>
-violets are blue<br>
-i like minecraft<br>
-and pizza too
-</p>
+function updateCountdown() {
+  const rem = Math.max(0, END - Date.now());
+  const d   = Math.floor(rem / 86400000);
+  const h   = Math.floor((rem % 86400000) / 3600000);
+  const m   = Math.floor((rem % 3600000)  / 60000);
+  const s   = Math.floor((rem % 60000)    / 1000);
+  document.getElementById('cd').textContent =
+    String(d).padStart(2,'0') + ':' +
+    String(h).padStart(2,'0') + ':' +
+    String(m).padStart(2,'0') + ':' +
+    String(s).padStart(2,'0');
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
 
-<hr color="red">
+// ── Planet data ─────────────────────────────────────────────────
+// orbitR: fraction of canvas half-width, speed: rad/s
+const planets = [
+  { name:'Mercury', orbitR:0.10, r:3,  color:'#b5b5b5', speed:0.0004150, angle:1.2 },
+  { name:'Venus',   orbitR:0.16, r:5,  color:'#e8cda0', speed:0.0001624, angle:2.5 },
+  { name:'Earth',   orbitR:0.22, r:6,  color:'#4fa3e0', speed:0.0001000, angle:0.8, ring:false, isEarth:true },
+  { name:'Mars',    orbitR:0.29, r:4,  color:'#c1440e', speed:0.0000532, angle:4.1 },
+  { name:'Jupiter', orbitR:0.41, r:13, color:'#c88b3a', speed:0.0000084, angle:0.3 },
+  { name:'Saturn',  orbitR:0.52, r:11, color:'#e4d191', speed:0.0000034, angle:3.6, ring:true },
+  { name:'Uranus',  orbitR:0.62, r:8,  color:'#7de8e8', speed:0.0000012, angle:5.2 },
+  { name:'Neptune', orbitR:0.72, r:7,  color:'#4b70dd', speed:0.0000006, angle:2.0 },
+];
 
-<h2><font color="purple">my guestbook</font></h2>
-<p>leave me a message!!!!</p>
-<textarea rows="4" cols="40">write here!!</textarea><br><br>
-<input type="button" value="submit (doesnt work yet)">
-<br><br>
+// ── Starfield ───────────────────────────────────────────────────
+const stars = Array.from({length: 320}, () => ({
+  x: Math.random(),
+  y: Math.random(),
+  r: Math.random() * 1.2 + 0.2,
+  a: Math.random() * 0.6 + 0.2,
+}));
 
-<hr color="red">
+// ── Object approach ─────────────────────────────────────────────
+// The blue dot travels from a fixed far point toward Earth
+// Progress goes 0→1 over the 2-day window
+function getProgress() {
+  const total = 2 * 24 * 60 * 60 * 1000;
+  return Math.min(1, (total - Math.max(0, END - Date.now())) / total);
+}
 
-<center>
-  <font size="1">
-    you are visitor number: <b>7</b><br><br>
-    last updated: tuesday<br><br>
-    <blink>please dont copy my website!!!</blink><br><br>
-    best viewed in internet explorer
-  </font>
-</center>
+// ── Draw loop ───────────────────────────────────────────────────
+let last = 0;
+function draw(ts) {
+  requestAnimationFrame(draw);
+  const dt = ts - last; last = ts;
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const scale = W / 2;
 
-</font>
+  // Advance planet angles
+  planets.forEach(p => p.angle += p.speed * dt);
 
+  // Clear
+  ctx.clearRect(0, 0, W, H);
+
+  // Background gradient
+  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, scale);
+  bg.addColorStop(0,   '#00001a');
+  bg.addColorStop(1,   '#000008');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars
+  stars.forEach(s => {
+    ctx.beginPath();
+    ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${s.a})`;
+    ctx.fill();
+  });
+
+  // Orbit rings
+  planets.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, p.orbitR * scale, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Sun
+  const sunGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60);
+  sunGlow.addColorStop(0,   'rgba(255,240,120,1)');
+  sunGlow.addColorStop(0.3, 'rgba(255,180,40,0.8)');
+  sunGlow.addColorStop(0.7, 'rgba(255,120,0,0.2)');
+  sunGlow.addColorStop(1,   'rgba(255,80,0,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 60, 0, Math.PI * 2);
+  ctx.fillStyle = sunGlow;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.fillStyle = '#fffbe8';
+  ctx.shadowColor = '#ffdd55';
+  ctx.shadowBlur  = 30;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Get Earth position (needed for the approach line)
+  let earthX = cx, earthY = cy;
+  const earthP = planets.find(p => p.isEarth);
+  if (earthP) {
+    earthX = cx + Math.cos(earthP.angle) * earthP.orbitR * scale;
+    earthY = cy + Math.sin(earthP.angle) * earthP.orbitR * scale;
+  }
+
+  // ── Approach trajectory ──────────────────────────────────────
+  // Fixed origin point well outside the solar system
+  const originAngle = -0.62; // fixed direction
+  const originDist  = scale * 1.15;
+  const ox = cx + Math.cos(originAngle) * originDist;
+  const oy = cy + Math.sin(originAngle) * originDist;
+
+  // Dotted line from origin to Earth
+  ctx.save();
+  ctx.setLineDash([6, 8]);
+  ctx.beginPath();
+  ctx.moveTo(ox, oy);
+  ctx.lineTo(earthX, earthY);
+  ctx.strokeStyle = 'rgba(74,184,255,0.45)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // Moving blue dot along the line
+  const prog = getProgress();
+  const dotX = ox + (earthX - ox) * prog;
+  const dotY = oy + (earthY - oy) * prog;
+
+  // Dot glow
+  const dg = ctx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 18);
+  dg.addColorStop(0,   'rgba(74,184,255,0.9)');
+  dg.addColorStop(0.4, 'rgba(74,184,255,0.4)');
+  dg.addColorStop(1,   'rgba(74,184,255,0)');
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 18, 0, Math.PI * 2);
+  ctx.fillStyle = dg;
+  ctx.fill();
+
+  // Dot core
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 4.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#a8d8ff';
+  ctx.shadowColor = '#4ab8ff';
+  ctx.shadowBlur  = 14;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Trail behind the dot
+  const trailLen = 0.06;
+  const trailStart = Math.max(0, prog - trailLen);
+  const tsx = ox + (earthX - ox) * trailStart;
+  const tsy = oy + (earthY - oy) * trailStart;
+  const trailGrad = ctx.createLinearGradient(tsx, tsy, dotX, dotY);
+  trailGrad.addColorStop(0,   'rgba(74,184,255,0)');
+  trailGrad.addColorStop(1,   'rgba(74,184,255,0.5)');
+  ctx.beginPath();
+  ctx.moveTo(tsx, tsy);
+  ctx.lineTo(dotX, dotY);
+  ctx.strokeStyle = trailGrad;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Planets
+  planets.forEach(p => {
+    const px = cx + Math.cos(p.angle) * p.orbitR * scale;
+    const py = cy + Math.sin(p.angle) * p.orbitR * scale;
+
+    // Saturn ring
+    if (p.ring) {
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(0.4);
+      ctx.scale(1, 0.35);
+      ctx.beginPath();
+      ctx.arc(0, 0, p.r * 2.2, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(220,200,120,0.55)';
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Planet glow
+    const glow = ctx.createRadialGradient(px, py, 0, px, py, p.r * 3);
+    glow.addColorStop(0,   p.color + 'aa');
+    glow.addColorStop(1,   p.color + '00');
+    ctx.beginPath();
+    ctx.arc(px, py, p.r * 3, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    // Planet body
+    ctx.beginPath();
+    ctx.arc(px, py, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur  = 6;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Earth highlight
+    if (p.isEarth) {
+      ctx.beginPath();
+      ctx.arc(px, py, p.r + 3, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(74,184,255,0.5)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    }
+
+    // Label
+    if (W > 400) {
+      ctx.font = `${Math.max(9, W * 0.012)}px 'Share Tech Mono'`;
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.fillText(p.name, px + p.r + 4, py - p.r - 2);
+    }
+  });
+}
+
+requestAnimationFrame(draw);
+</script>
 </body>
 </html>
