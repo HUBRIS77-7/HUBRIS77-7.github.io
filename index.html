@@ -91,9 +91,9 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-// ── Countdown ────────────────────────────────────────────────────
-// Fixed universal target — same on every device
-const END = new Date('2026-04-05T12:00:00Z').getTime();
+// ── Countdown (single source of truth) ───────────────────────────
+const START = new Date('2026-04-03T12:00:00Z').getTime();
+const END   = new Date('2026-04-05T12:00:00Z').getTime();
 
 function updateCountdown() {
   const rem = Math.max(0, END - Date.now());
@@ -108,12 +108,12 @@ function updateCountdown() {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
+function getProgress() {
+  const now = Date.now();
+  return Math.min(1, Math.max(0, (now - START) / (END - START)));
+}
+
 // ── Planet data ──────────────────────────────────────────────────
-// a    : semi-major axis as fraction of canvas half-width
-//        (sqrt-AU scaled so all 8 planets fit: Neptune → 0.80)
-// e    : real eccentricity
-// peri : longitude of perihelion — orients each ellipse uniquely
-// period: real orbital period in days → drives relative angular speed
 const planets = [
   { name:'Mercury', a:0.091, e:0.206, peri:1.35, r:3,  color:'#b5b5b5', period:87.97,   angle:1.2 },
   { name:'Venus',   a:0.124, e:0.007, peri:2.55, r:5,  color:'#e8cda0', period:224.7,   angle:2.5 },
@@ -125,11 +125,15 @@ const planets = [
   { name:'Neptune', a:0.800, e:0.010, peri:0.78, r:7,  color:'#4b70dd', period:60182,   angle:2.0 },
 ];
 
-// Earth does one screen-orbit in ~60s; all others scaled by real period ratio
-const EARTH_SPEED = (2 * Math.PI) / 60000;
-planets.forEach(p => p.speed = EARTH_SPEED * (365.25 / p.period));
+// ── Orbital speed synced to countdown ────────────────────────────
+const TOTAL_TIME = END - START;
+const EARTH_SPEED = (2 * Math.PI) / TOTAL_TIME;
 
-// Kepler ellipse position: sun at one focus
+planets.forEach(p => {
+  p.speed = EARTH_SPEED * (365.25 / p.period);
+});
+
+// ── Kepler position ──────────────────────────────────────────────
 function planetPos(p, cx, cy, scale) {
   const a  = p.a * scale;
   const b  = a * Math.sqrt(1 - p.e * p.e);
@@ -142,18 +146,12 @@ function planetPos(p, cx, cy, scale) {
   };
 }
 
-// ── Starfield ────────────────────────────────────────────────────
+// ── Stars ────────────────────────────────────────────────────────
 const stars = Array.from({length: 320}, () => ({
   x: Math.random(), y: Math.random(),
   r: Math.random() * 1.2 + 0.2,
   a: Math.random() * 0.6 + 0.2,
 }));
-
-// ── Approach progress ────────────────────────────────────────────
-function getProgress() {
-  const total = END - new Date('2026-04-03T12:00:00Z').getTime(); // 2-day window
-  return Math.min(1, Math.max(0, (total - (END - Date.now())) / total));
-}
 
 // ── Draw loop ────────────────────────────────────────────────────
 let last = 0;
@@ -168,14 +166,12 @@ function draw(ts) {
 
   ctx.clearRect(0, 0, W, H);
 
-  // Background
   const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, scale);
   bg.addColorStop(0, '#00001a');
   bg.addColorStop(1, '#000008');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  // Stars
   stars.forEach(s => {
     ctx.beginPath();
     ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
@@ -183,12 +179,11 @@ function draw(ts) {
     ctx.fill();
   });
 
-  // Elliptical orbit paths
+  // Orbits
   planets.forEach(p => {
     const a = p.a * scale;
     const b = a * Math.sqrt(1 - p.e * p.e);
     const c = a * p.e;
-    // Ellipse center is offset from the sun (focus) by c along perihelion direction
     const ecx = cx - c * Math.cos(p.peri);
     const ecy = cy - c * Math.sin(p.peri);
     ctx.save();
@@ -197,114 +192,55 @@ function draw(ts) {
     ctx.beginPath();
     ctx.ellipse(0, 0, a, b, 0, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-    ctx.lineWidth = 1;
     ctx.stroke();
     ctx.restore();
   });
 
   // Sun
   const sunGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60);
-  sunGlow.addColorStop(0,   'rgba(255,240,120,1)');
-  sunGlow.addColorStop(0.3, 'rgba(255,180,40,0.8)');
-  sunGlow.addColorStop(0.7, 'rgba(255,120,0,0.2)');
-  sunGlow.addColorStop(1,   'rgba(255,80,0,0)');
-  ctx.beginPath(); ctx.arc(cx, cy, 60, 0, Math.PI * 2);
+  sunGlow.addColorStop(0,'rgba(255,240,120,1)');
+  sunGlow.addColorStop(1,'rgba(255,80,0,0)');
+  ctx.beginPath(); ctx.arc(cx, cy, 60, 0, Math.PI*2);
   ctx.fillStyle = sunGlow; ctx.fill();
-  ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI * 2);
-  ctx.fillStyle = '#fffbe8';
-  ctx.shadowColor = '#ffdd55'; ctx.shadowBlur = 30;
-  ctx.fill(); ctx.shadowBlur = 0;
 
-  // Earth position (for approach line target)
-  const earthP = planets.find(p => p.isEarth);
-  const ep = planetPos(earthP, cx, cy, scale);
+  ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI*2);
+  ctx.fillStyle = '#fffbe8'; ctx.fill();
 
-  // Approach trajectory
+  const earth = planets.find(p=>p.isEarth);
+  const ep = planetPos(earth, cx, cy, scale);
+
+  // Trajectory
   const originAngle = -0.62;
   const ox = cx + Math.cos(originAngle) * scale * 1.15;
   const oy = cy + Math.sin(originAngle) * scale * 1.15;
 
-  ctx.save();
-  ctx.setLineDash([6, 8]);
-  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ep.x, ep.y);
-  ctx.strokeStyle = 'rgba(74,184,255,0.45)';
-  ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.setLineDash([6,8]);
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ep.x,ep.y);
+  ctx.strokeStyle='rgba(74,184,255,0.45)';
+  ctx.stroke();
   ctx.setLineDash([]);
-  ctx.restore();
 
-  // Moving triangle
   const prog = getProgress();
-  const dotX = ox + (ep.x - ox) * prog;
-  const dotY = oy + (ep.y - oy) * prog;
+  const dotX = ox + (ep.x-ox)*prog;
+  const dotY = oy + (ep.y-oy)*prog;
 
-  // Trail
-  const trailStart = Math.max(0, prog - 0.06);
-  const tsx = ox + (ep.x - ox) * trailStart;
-  const tsy = oy + (ep.y - oy) * trailStart;
-  const trailGrad = ctx.createLinearGradient(tsx, tsy, dotX, dotY);
-  trailGrad.addColorStop(0, 'rgba(74,184,255,0)');
-  trailGrad.addColorStop(1, 'rgba(74,184,255,0.5)');
-  ctx.beginPath(); ctx.moveTo(tsx, tsy); ctx.lineTo(dotX, dotY);
-  ctx.strokeStyle = trailGrad; ctx.lineWidth = 2.5; ctx.stroke();
-
-  // Upside-down triangle
-  const triSize = 11;
-  ctx.save();
-  ctx.translate(dotX, dotY);
   ctx.beginPath();
-  ctx.moveTo(-triSize, -triSize);
-  ctx.lineTo( triSize, -triSize);
-  ctx.lineTo(0,  triSize);
+  ctx.moveTo(dotX-11,-11+dotY);
+  ctx.lineTo(dotX+11,-11+dotY);
+  ctx.lineTo(dotX,dotY+11);
   ctx.closePath();
-  ctx.fillStyle = '#000000'; ctx.fill();
-  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.8;
-  ctx.shadowColor = 'rgba(255,255,255,0.6)'; ctx.shadowBlur = 6;
-  ctx.stroke(); ctx.shadowBlur = 0;
-  ctx.restore();
+  ctx.fillStyle='#000';
+  ctx.fill();
+  ctx.strokeStyle='#fff';
+  ctx.stroke();
 
   // Planets
-  planets.forEach(p => {
-    const pos = planetPos(p, cx, cy, scale);
-    const px = pos.x, py = pos.y;
-
-    // Saturn ring
-    if (p.ring) {
-      ctx.save();
-      ctx.translate(px, py);
-      ctx.rotate(0.4); ctx.scale(1, 0.35);
-      ctx.beginPath();
-      ctx.arc(0, 0, p.r * 2.2, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(220,200,120,0.55)';
-      ctx.lineWidth = 3.5; ctx.stroke();
-      ctx.restore();
-    }
-
-    // Glow
-    const glow = ctx.createRadialGradient(px, py, 0, px, py, p.r * 3);
-    glow.addColorStop(0, p.color + 'aa');
-    glow.addColorStop(1, p.color + '00');
-    ctx.beginPath(); ctx.arc(px, py, p.r * 3, 0, Math.PI * 2);
-    ctx.fillStyle = glow; ctx.fill();
-
-    // Body
-    ctx.beginPath(); ctx.arc(px, py, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = p.color;
-    ctx.shadowColor = p.color; ctx.shadowBlur = 6;
-    ctx.fill(); ctx.shadowBlur = 0;
-
-    // Earth ring
-    if (p.isEarth) {
-      ctx.beginPath(); ctx.arc(px, py, p.r + 3, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(74,184,255,0.5)';
-      ctx.lineWidth = 1.2; ctx.stroke();
-    }
-
-    // Label
-    if (W > 400) {
-      ctx.font = `${Math.max(9, W * 0.012)}px 'Share Tech Mono'`;
-      ctx.fillStyle = 'rgba(255,255,255,0.45)';
-      ctx.fillText(p.name, px + p.r + 4, py - p.r - 2);
-    }
+  planets.forEach(p=>{
+    const pos=planetPos(p,cx,cy,scale);
+    ctx.beginPath();
+    ctx.arc(pos.x,pos.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=p.color;
+    ctx.fill();
   });
 }
 requestAnimationFrame(draw);
