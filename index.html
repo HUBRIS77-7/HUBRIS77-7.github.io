@@ -17,21 +17,13 @@
     overflow: hidden;
     font-family: 'Share Tech Mono', monospace;
   }
-
   #wrap {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0;
   }
-
-  canvas {
-    display: block;
-    cursor: grab;
-  }
-
-  /* ── HUD overlay ── */
+  canvas { display: block; }
   #hud {
     position: absolute;
     top: 18px;
@@ -62,7 +54,6 @@
     color: rgba(74,184,255,0.35);
     margin-top: 3px;
   }
-
   #alert-bar {
     position: absolute;
     bottom: 18px;
@@ -79,81 +70,92 @@
 </style>
 </head>
 <body>
-
 <div id="wrap">
   <canvas id="c"></canvas>
-
   <div id="hud">
-    <div class="label">⚠ UNKNOWN NARRATIVE PHYSICALITY — ARRIVAL COUNTDOWN</div>
-    <div class="countdown" id="cd">48:00:00:00</div>
+    <div class="label">⚠ UNKNOWN NARRATIVE PHYSICALITY - ARRIVAL SOON</div>
+    <div class="countdown" id="cd">00:00:00:00</div>
     <div class="sublabel">days · hours · minutes · seconds</div>
   </div>
-
-  <div id="alert-bar" id="ab">TRAJECTORY LOCKED · ORIGIN: UNKNOWN · VELOCITY: 77.7 km/s</div>
+  <div id="alert-bar">TRAJECTORY LOCKED · ORIGIN: UNKNOWN · VELOCITY: 77.7 km/s</div>
 </div>
 
 <script>
-// ── Canvas setup ────────────────────────────────────────────────
+// ── Canvas ───────────────────────────────────────────────────────
 const canvas = document.getElementById('c');
 const ctx    = canvas.getContext('2d');
-
 function resize() {
   const s = Math.min(window.innerWidth, window.innerHeight, 820);
-  canvas.width  = s;
-  canvas.height = s;
+  canvas.width = canvas.height = s;
 }
 resize();
 window.addEventListener('resize', resize);
 
-// ── Countdown ───────────────────────────────────────────────────
-// Fixed target date — same for every device, everywhere
+// ── Countdown ────────────────────────────────────────────────────
+// Fixed universal target — same on every device
 const END = new Date('2026-04-05T12:00:00Z').getTime();
 
 function updateCountdown() {
   const rem = Math.max(0, END - Date.now());
-  const d   = Math.floor(rem / 86400000);
-  const h   = Math.floor((rem % 86400000) / 3600000);
-  const m   = Math.floor((rem % 3600000)  / 60000);
-  const s   = Math.floor((rem % 60000)    / 1000);
+  const d = Math.floor(rem / 86400000);
+  const h = Math.floor((rem % 86400000) / 3600000);
+  const m = Math.floor((rem % 3600000)  / 60000);
+  const s = Math.floor((rem % 60000)    / 1000);
   document.getElementById('cd').textContent =
-    String(d).padStart(2,'0') + ':' +
-    String(h).padStart(2,'0') + ':' +
-    String(m).padStart(2,'0') + ':' +
-    String(s).padStart(2,'0');
+    String(d).padStart(2,'0') + ':' + String(h).padStart(2,'0') + ':' +
+    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
 }
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-// ── Planet data ─────────────────────────────────────────────────
-// orbitR: fraction of canvas half-width, speed: rad/s
+// ── Planet data ──────────────────────────────────────────────────
+// a    : semi-major axis as fraction of canvas half-width
+//        (sqrt-AU scaled so all 8 planets fit: Neptune → 0.80)
+// e    : real eccentricity
+// peri : longitude of perihelion — orients each ellipse uniquely
+// period: real orbital period in days → drives relative angular speed
 const planets = [
-  { name:'Mercury', orbitR:0.10, r:3,  color:'#b5b5b5', speed:0.0004150, angle:1.2 },
-  { name:'Venus',   orbitR:0.16, r:5,  color:'#e8cda0', speed:0.0001624, angle:2.5 },
-  { name:'Earth',   orbitR:0.22, r:6,  color:'#4fa3e0', speed:0.0001000, angle:0.8, ring:false, isEarth:true },
-  { name:'Mars',    orbitR:0.29, r:4,  color:'#c1440e', speed:0.0000532, angle:4.1 },
-  { name:'Jupiter', orbitR:0.41, r:13, color:'#c88b3a', speed:0.0000084, angle:0.3 },
-  { name:'Saturn',  orbitR:0.52, r:11, color:'#e4d191', speed:0.0000034, angle:3.6, ring:true },
-  { name:'Uranus',  orbitR:0.62, r:8,  color:'#7de8e8', speed:0.0000012, angle:5.2 },
-  { name:'Neptune', orbitR:0.72, r:7,  color:'#4b70dd', speed:0.0000006, angle:2.0 },
+  { name:'Mercury', a:0.091, e:0.206, peri:1.35, r:3,  color:'#b5b5b5', period:87.97,   angle:1.2 },
+  { name:'Venus',   a:0.124, e:0.007, peri:2.55, r:5,  color:'#e8cda0', period:224.7,   angle:2.5 },
+  { name:'Earth',   a:0.146, e:0.017, peri:1.80, r:6,  color:'#4fa3e0', period:365.25,  angle:0.8, isEarth:true },
+  { name:'Mars',    a:0.180, e:0.093, peri:5.00, r:4,  color:'#c1440e', period:686.97,  angle:4.1 },
+  { name:'Jupiter', a:0.333, e:0.049, peri:0.26, r:13, color:'#c88b3a', period:4332.59, angle:0.3 },
+  { name:'Saturn',  a:0.451, e:0.057, peri:1.62, r:11, color:'#e4d191', period:10759.2, angle:3.6, ring:true },
+  { name:'Uranus',  a:0.639, e:0.046, peri:2.98, r:8,  color:'#7de8e8', period:30688.5, angle:5.2 },
+  { name:'Neptune', a:0.800, e:0.010, peri:0.78, r:7,  color:'#4b70dd', period:60182,   angle:2.0 },
 ];
 
-// ── Starfield ───────────────────────────────────────────────────
+// Earth does one screen-orbit in ~60s; all others scaled by real period ratio
+const EARTH_SPEED = (2 * Math.PI) / 60000;
+planets.forEach(p => p.speed = EARTH_SPEED * (365.25 / p.period));
+
+// Kepler ellipse position: sun at one focus
+function planetPos(p, cx, cy, scale) {
+  const a  = p.a * scale;
+  const b  = a * Math.sqrt(1 - p.e * p.e);
+  const c  = a * p.e;
+  const xe = a * Math.cos(p.angle) - c;
+  const ye = b * Math.sin(p.angle);
+  return {
+    x: cx + xe * Math.cos(p.peri) - ye * Math.sin(p.peri),
+    y: cy + xe * Math.sin(p.peri) + ye * Math.cos(p.peri),
+  };
+}
+
+// ── Starfield ────────────────────────────────────────────────────
 const stars = Array.from({length: 320}, () => ({
-  x: Math.random(),
-  y: Math.random(),
+  x: Math.random(), y: Math.random(),
   r: Math.random() * 1.2 + 0.2,
   a: Math.random() * 0.6 + 0.2,
 }));
 
-// ── Object approach ─────────────────────────────────────────────
-// The blue dot travels from a fixed far point toward Earth
-// Progress goes 0→1 over the 2-day window
+// ── Approach progress ────────────────────────────────────────────
 function getProgress() {
-  const total = 2 * 24 * 60 * 60 * 1000;
-  return Math.min(1, (total - Math.max(0, END - Date.now())) / total);
+  const total = END - new Date('2026-04-03T12:00:00Z').getTime(); // 2-day window
+  return Math.min(1, Math.max(0, (total - (END - Date.now())) / total));
 }
 
-// ── Draw loop ───────────────────────────────────────────────────
+// ── Draw loop ────────────────────────────────────────────────────
 let last = 0;
 function draw(ts) {
   requestAnimationFrame(draw);
@@ -162,16 +164,14 @@ function draw(ts) {
   const cx = W / 2, cy = H / 2;
   const scale = W / 2;
 
-  // Advance planet angles
   planets.forEach(p => p.angle += p.speed * dt);
 
-  // Clear
   ctx.clearRect(0, 0, W, H);
 
-  // Background gradient
+  // Background
   const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, scale);
-  bg.addColorStop(0,   '#00001a');
-  bg.addColorStop(1,   '#000008');
+  bg.addColorStop(0, '#00001a');
+  bg.addColorStop(1, '#000008');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
@@ -183,13 +183,23 @@ function draw(ts) {
     ctx.fill();
   });
 
-  // Orbit rings
+  // Elliptical orbit paths
   planets.forEach(p => {
+    const a = p.a * scale;
+    const b = a * Math.sqrt(1 - p.e * p.e);
+    const c = a * p.e;
+    // Ellipse center is offset from the sun (focus) by c along perihelion direction
+    const ecx = cx - c * Math.cos(p.peri);
+    const ecy = cy - c * Math.sin(p.peri);
+    ctx.save();
+    ctx.translate(ecx, ecy);
+    ctx.rotate(p.peri);
     ctx.beginPath();
-    ctx.arc(cx, cy, p.orbitR * scale, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, a, b, 0, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.07)';
     ctx.lineWidth = 1;
     ctx.stroke();
+    ctx.restore();
   });
 
   // Sun
@@ -198,129 +208,95 @@ function draw(ts) {
   sunGlow.addColorStop(0.3, 'rgba(255,180,40,0.8)');
   sunGlow.addColorStop(0.7, 'rgba(255,120,0,0.2)');
   sunGlow.addColorStop(1,   'rgba(255,80,0,0)');
-  ctx.beginPath();
-  ctx.arc(cx, cy, 60, 0, Math.PI * 2);
-  ctx.fillStyle = sunGlow;
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.beginPath(); ctx.arc(cx, cy, 60, 0, Math.PI * 2);
+  ctx.fillStyle = sunGlow; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI * 2);
   ctx.fillStyle = '#fffbe8';
-  ctx.shadowColor = '#ffdd55';
-  ctx.shadowBlur  = 30;
-  ctx.fill();
-  ctx.shadowBlur = 0;
+  ctx.shadowColor = '#ffdd55'; ctx.shadowBlur = 30;
+  ctx.fill(); ctx.shadowBlur = 0;
 
-  // Get Earth position (needed for the approach line)
-  let earthX = cx, earthY = cy;
+  // Earth position (for approach line target)
   const earthP = planets.find(p => p.isEarth);
-  if (earthP) {
-    earthX = cx + Math.cos(earthP.angle) * earthP.orbitR * scale;
-    earthY = cy + Math.sin(earthP.angle) * earthP.orbitR * scale;
-  }
+  const ep = planetPos(earthP, cx, cy, scale);
 
-  // ── Approach trajectory ──────────────────────────────────────
-  // Fixed origin point well outside the solar system
-  const originAngle = -0.62; // fixed direction
-  const originDist  = scale * 1.15;
-  const ox = cx + Math.cos(originAngle) * originDist;
-  const oy = cy + Math.sin(originAngle) * originDist;
+  // Approach trajectory
+  const originAngle = -0.62;
+  const ox = cx + Math.cos(originAngle) * scale * 1.15;
+  const oy = cy + Math.sin(originAngle) * scale * 1.15;
 
-  // Dotted line from origin to Earth
   ctx.save();
   ctx.setLineDash([6, 8]);
-  ctx.beginPath();
-  ctx.moveTo(ox, oy);
-  ctx.lineTo(earthX, earthY);
+  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ep.x, ep.y);
   ctx.strokeStyle = 'rgba(74,184,255,0.45)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  ctx.lineWidth = 1.5; ctx.stroke();
   ctx.setLineDash([]);
   ctx.restore();
 
-  // Moving blue dot along the line
+  // Moving triangle
   const prog = getProgress();
-  const dotX = ox + (earthX - ox) * prog;
-  const dotY = oy + (earthY - oy) * prog;
+  const dotX = ox + (ep.x - ox) * prog;
+  const dotY = oy + (ep.y - oy) * prog;
 
-  // Trail behind the triangle
-  const trailLen = 0.06;
-  const trailStart = Math.max(0, prog - trailLen);
-  const tsx = ox + (earthX - ox) * trailStart;
-  const tsy = oy + (earthY - oy) * trailStart;
+  // Trail
+  const trailStart = Math.max(0, prog - 0.06);
+  const tsx = ox + (ep.x - ox) * trailStart;
+  const tsy = oy + (ep.y - oy) * trailStart;
   const trailGrad = ctx.createLinearGradient(tsx, tsy, dotX, dotY);
-  trailGrad.addColorStop(0,   'rgba(74,184,255,0)');
-  trailGrad.addColorStop(1,   'rgba(74,184,255,0.5)');
-  ctx.beginPath();
-  ctx.moveTo(tsx, tsy);
-  ctx.lineTo(dotX, dotY);
-  ctx.strokeStyle = trailGrad;
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
+  trailGrad.addColorStop(0, 'rgba(74,184,255,0)');
+  trailGrad.addColorStop(1, 'rgba(74,184,255,0.5)');
+  ctx.beginPath(); ctx.moveTo(tsx, tsy); ctx.lineTo(dotX, dotY);
+  ctx.strokeStyle = trailGrad; ctx.lineWidth = 2.5; ctx.stroke();
 
-  // Upside-down triangle (point facing down)
+  // Upside-down triangle
   const triSize = 11;
   ctx.save();
   ctx.translate(dotX, dotY);
   ctx.beginPath();
-  ctx.moveTo(-triSize, -triSize);   // top-left
-  ctx.lineTo( triSize, -triSize);   // top-right
-  ctx.lineTo(       0,  triSize);   // bottom point
+  ctx.moveTo(-triSize, -triSize);
+  ctx.lineTo( triSize, -triSize);
+  ctx.lineTo(0,  triSize);
   ctx.closePath();
-  ctx.fillStyle = '#000000';
-  ctx.fill();
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 1.8;
-  ctx.shadowColor = 'rgba(255,255,255,0.6)';
-  ctx.shadowBlur = 6;
-  ctx.stroke();
-  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#000000'; ctx.fill();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.8;
+  ctx.shadowColor = 'rgba(255,255,255,0.6)'; ctx.shadowBlur = 6;
+  ctx.stroke(); ctx.shadowBlur = 0;
   ctx.restore();
 
   // Planets
   planets.forEach(p => {
-    const px = cx + Math.cos(p.angle) * p.orbitR * scale;
-    const py = cy + Math.sin(p.angle) * p.orbitR * scale;
+    const pos = planetPos(p, cx, cy, scale);
+    const px = pos.x, py = pos.y;
 
     // Saturn ring
     if (p.ring) {
       ctx.save();
       ctx.translate(px, py);
-      ctx.rotate(0.4);
-      ctx.scale(1, 0.35);
+      ctx.rotate(0.4); ctx.scale(1, 0.35);
       ctx.beginPath();
       ctx.arc(0, 0, p.r * 2.2, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(220,200,120,0.55)';
-      ctx.lineWidth = 3.5;
-      ctx.stroke();
+      ctx.lineWidth = 3.5; ctx.stroke();
       ctx.restore();
     }
 
-    // Planet glow
+    // Glow
     const glow = ctx.createRadialGradient(px, py, 0, px, py, p.r * 3);
-    glow.addColorStop(0,   p.color + 'aa');
-    glow.addColorStop(1,   p.color + '00');
-    ctx.beginPath();
-    ctx.arc(px, py, p.r * 3, 0, Math.PI * 2);
-    ctx.fillStyle = glow;
-    ctx.fill();
+    glow.addColorStop(0, p.color + 'aa');
+    glow.addColorStop(1, p.color + '00');
+    ctx.beginPath(); ctx.arc(px, py, p.r * 3, 0, Math.PI * 2);
+    ctx.fillStyle = glow; ctx.fill();
 
-    // Planet body
-    ctx.beginPath();
-    ctx.arc(px, py, p.r, 0, Math.PI * 2);
+    // Body
+    ctx.beginPath(); ctx.arc(px, py, p.r, 0, Math.PI * 2);
     ctx.fillStyle = p.color;
-    ctx.shadowColor = p.color;
-    ctx.shadowBlur  = 6;
-    ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.shadowColor = p.color; ctx.shadowBlur = 6;
+    ctx.fill(); ctx.shadowBlur = 0;
 
-    // Earth highlight
+    // Earth ring
     if (p.isEarth) {
-      ctx.beginPath();
-      ctx.arc(px, py, p.r + 3, 0, Math.PI * 2);
+      ctx.beginPath(); ctx.arc(px, py, p.r + 3, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(74,184,255,0.5)';
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
+      ctx.lineWidth = 1.2; ctx.stroke();
     }
 
     // Label
@@ -331,7 +307,6 @@ function draw(ts) {
     }
   });
 }
-
 requestAnimationFrame(draw);
 </script>
 </body>
