@@ -1,313 +1,739 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Solar System — Incoming</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<title>~~*~~ THE CHURCH OF CHLOE ~~*~~ Official Homepage!!! ~~*~~</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Diplomata+SC&display=swap');
+
+  /* ===== TILED BACKGROUND ===== */
   body {
-    background: #000008;
+    background-color: #000080;
+    background-image:
+      radial-gradient(circle, #6600aa 1px, transparent 1px),
+      radial-gradient(circle, #3300ff 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+    margin: 0;
+    padding: 0;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    color: #ffff00;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ccircle cx='16' cy='16' r='6' fill='gold' stroke='white' stroke-width='2'/%3E%3C/svg%3E") 16 16, crosshair;
+  }
+
+  /* ===== MAIN WRAPPER ===== */
+  .page-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #1a0033;
+    border-left: 6px ridge #ff00ff;
+    border-right: 6px ridge #ff00ff;
+    padding-bottom: 20px;
+    box-shadow: 0 0 40px #ff00ff, 0 0 80px #6600cc;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background: linear-gradient(180deg, #000000 0%, #330066 40%, #000080 100%);
+    text-align: center;
+    padding: 10px 0 0 0;
+    border-bottom: 4px solid #ff00ff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: "✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝ ✝";
+    display: block;
+    color: #ffd700;
+    font-size: 14px;
+    letter-spacing: 4px;
+    animation: blink 1s step-start infinite;
+    padding: 4px 0;
+  }
+
+  /* WORDART TITLE */
+  .wordart-title {
+    font-family: 'UnifrakturMaguntia', 'Diplomata SC', "Times New Roman", serif;
+    font-size: 56px;
+    line-height: 1.1;
+    background: linear-gradient(180deg,
+      #ffffff 0%,
+      #ffd700 20%,
+      #ff8800 40%,
+      #ff00ff 60%,
+      #8800ff 80%,
+      #ffffff 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(3px 3px 0 #000) drop-shadow(-1px -1px 0 #ff00ff);
+    letter-spacing: 2px;
+    animation: rainbow-shift 3s linear infinite;
+    padding: 10px 20px 0;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #00ffff;
+    font-style: italic;
+    letter-spacing: 2px;
+    margin: 4px 0 8px;
+    text-shadow: 0 0 8px #00ffff;
+  }
+
+  /* SPINNING CROSS / ANGEL GIF REPLACEMENT */
+  .spinning-icon {
+    display: inline-block;
+    font-size: 40px;
+    animation: spin 4s linear infinite;
+    filter: drop-shadow(0 0 6px #ffd700);
+  }
+  .halo-icon {
+    display: inline-block;
+    font-size: 36px;
+    animation: float 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px #ffcc00);
+  }
+  .icons-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 8px 0 12px;
+  }
+
+  /* MARQUEE */
+  .marquee-bar {
+    background: #000000;
+    border-top: 3px solid #ffd700;
+    border-bottom: 3px solid #ffd700;
+    padding: 5px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .marquee-inner {
+    display: inline-block;
+    animation: marquee 18s linear infinite;
+    color: #ff00ff;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+  .marquee-inner span {
+    color: #ffd700;
+    margin: 0 10px;
+  }
+
+  /* NAVIGATION TABLE */
+  .nav-table {
+    width: 100%;
+    background: linear-gradient(90deg, #330000, #330066, #000033, #330066, #330000);
+    border-collapse: collapse;
+  }
+  .nav-table td {
+    text-align: center;
+    padding: 8px 12px;
+    border: 2px outset #9933cc;
+  }
+  .nav-table a {
+    color: #00ffff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    text-shadow: 0 0 6px #00ffff;
+    letter-spacing: 1px;
+  }
+  .nav-table a:hover {
+    color: #ffd700;
+    text-decoration: underline;
+    text-shadow: 0 0 10px #ffd700;
+  }
+
+  /* CONTENT LAYOUT */
+  .content-area {
+    display: flex;
+    gap: 0;
+    padding: 12px;
+  }
+
+  /* LEFT SIDEBAR */
+  .sidebar {
+    width: 170px;
+    min-width: 170px;
     display: flex;
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .sidebar-box {
+    background: #000033;
+    border: 3px ridge #ff00ff;
+    padding: 8px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .sidebar-box h4 {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    color: #ffd700;
+    text-decoration: underline;
+    text-transform: uppercase;
+    animation: blink 1.4s step-start infinite;
+  }
+  .sidebar-box a {
+    display: block;
+    color: #00ffff;
+    text-decoration: none;
+    margin: 3px 0;
+    font-size: 11px;
+  }
+  .sidebar-box a:hover { color: #ff00ff; text-decoration: underline; }
+  .sidebar-box p { color: #ccccff; margin: 3px 0; font-size: 11px; }
+
+  /* COUNTER BOX */
+  .counter {
+    background: #000000;
+    border: 4px inset #999;
+    padding: 8px;
+    text-align: center;
+    font-family: "Courier New", monospace;
+    color: #00ff00;
+    font-size: 20px;
+    letter-spacing: 4px;
+    text-shadow: 0 0 8px #00ff00;
+  }
+  .counter-label { font-size: 10px; color: #888; font-family: "Comic Sans MS", cursive; }
+
+  /* MAIN CONTENT */
+  .main-content {
+    flex: 1;
+    padding: 0 12px;
+  }
+
+  /* SECTION HEADERS */
+  .section-header {
+    background: linear-gradient(90deg, #6600cc, #cc0066, #6600cc);
+    color: #ffd700;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border: 3px outset #9933ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px #000;
+    text-align: center;
+  }
+
+  /* CONTENT BLOCKS */
+  .content-block {
+    background: rgba(0,0,50,0.8);
+    border: 2px ridge #9933cc;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #eeeeee;
+  }
+  .content-block p { margin: 6px 0; }
+  .content-block strong { color: #ffd700; }
+  .content-block em { color: #ff99ff; }
+
+  /* SPECIAL ANNOUNCEMENT BOX */
+  .announcement {
+    background: #330000;
+    border: 4px double #ff0000;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 14px;
+    animation: glow-red 1.5s ease-in-out infinite alternate;
+  }
+  .announcement h3 {
+    color: #ff3300;
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    animation: blink 0.8s step-start infinite;
+    text-transform: uppercase;
+  }
+  .announcement p { font-size: 12px; color: #ffcc99; margin: 3px 0; }
+
+  /* TESTIMONIALS */
+  .testimonial {
+    background: rgba(102,0,153,0.3);
+    border-left: 5px solid #ff00ff;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-style: italic;
+    font-size: 12px;
+    color: #ddccff;
+  }
+  .testimonial strong { color: #ffd700; font-style: normal; }
+
+  /* TABLE */
+  .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  .schedule-table th {
+    background: linear-gradient(90deg, #440088, #880044);
+    color: #ffd700;
+    padding: 5px 8px;
+    border: 2px outset #9933cc;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .schedule-table td {
+    background: rgba(0,0,40,0.7);
+    color: #ccccff;
+    padding: 5px 8px;
+    border: 1px solid #440066;
+  }
+  .schedule-table tr:hover td { background: rgba(100,0,150,0.5); }
+
+  /* FOOTER */
+  .footer {
+    background: #000000;
+    border-top: 4px solid #ff00ff;
+    text-align: center;
+    padding: 14px;
+    font-size: 11px;
+  }
+  .footer p { color: #888888; margin: 4px 0; }
+  .footer a { color: #00ffff; }
+  .footer .under-construction {
+    font-size: 13px;
+    color: #ff9900;
+    animation: blink 0.9s step-start infinite;
+    font-weight: bold;
+  }
+  .best-viewed {
+    font-size: 10px;
+    color: #666666;
+    margin-top: 8px;
+  }
+
+  /* HORIZONTAL RULES */
+  hr.fancy {
+    border: none;
+    height: 6px;
+    background: linear-gradient(90deg,
+      transparent, #ff00ff, #ffd700, #00ffff, #ff00ff, transparent
+    );
+    margin: 10px 0;
+  }
+
+  /* RAINBOW DIVIDER */
+  .rainbow-div {
+    height: 4px;
+    background: linear-gradient(90deg,
+      #ff0000, #ff7700, #ffff00, #00ff00, #0000ff, #8800ff, #ff00ff
+    );
+    margin: 8px 0;
+  }
+
+  /* NEW! Badge */
+  .new-badge {
+    display: inline-block;
+    background: #ff0000;
+    color: #ffff00;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 1px 4px;
+    border: 1px solid #ffff00;
+    animation: blink 0.6s step-start infinite;
+    vertical-align: middle;
+    margin-left: 4px;
+    text-transform: uppercase;
+  }
+
+  /* PIXEL ART CROSS */
+  .pixel-cross {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background:
+      linear-gradient(#ffd700, #ffd700) 10px 0/10px 30px no-repeat,
+      linear-gradient(#ffd700, #ffd700) 0 10px/30px 10px no-repeat;
+    filter: drop-shadow(0 0 4px #ffd700);
+    margin: 4px;
+  }
+
+  /* ANIMATED STARS */
+  .stars {
+    display: inline-block;
+    animation: twinkle 1s ease-in-out infinite alternate;
+    color: #ffd700;
+    font-size: 16px;
+  }
+
+  /* GUESTBOOK BUTTON */
+  .retro-button {
+    display: inline-block;
+    background: linear-gradient(180deg, #9900cc, #330066);
+    color: #ffd700;
+    border: 3px outset #cc66ff;
+    padding: 5px 12px;
+    font-family: "Comic Sans MS", cursive;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 3px;
+    text-shadow: 1px 1px #000;
+    letter-spacing: 1px;
+  }
+  .retro-button:hover {
+    background: linear-gradient(180deg, #cc33ff, #6600cc);
+    border-style: inset;
+  }
+  .retro-button:active { border-style: inset; }
+
+  /* BANNER BUTTONS (88x31) */
+  .banner-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 6px;
+  }
+  .banner-btn {
+    width: 88px;
+    height: 31px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    overflow: hidden;
-    font-family: 'Share Tech Mono', monospace;
-  }
-  #wrap {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  canvas { display: block; }
-  #hud {
-    position: absolute;
-    top: 18px;
-    left: 50%;
-    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: bold;
     text-align: center;
-    pointer-events: none;
-    z-index: 10;
+    border: 1px solid #ffffff;
+    line-height: 1.1;
+    padding: 2px;
   }
-  #hud .label {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.55rem;
-    letter-spacing: 0.35em;
-    color: rgba(100,180,255,0.5);
-    text-transform: uppercase;
-    margin-bottom: 4px;
+  .b1 { background: linear-gradient(135deg, #0000aa, #000066); color: #ffffff; }
+  .b2 { background: linear-gradient(135deg, #660000, #330000); color: #ffcc00; }
+  .b3 { background: linear-gradient(135deg, #003300, #001100); color: #00ff00; }
+  .b4 { background: linear-gradient(135deg, #330033, #000000); color: #ff99ff; }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
-  #hud .countdown {
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(1.4rem, 4vw, 2.2rem);
-    color: #4ab8ff;
-    text-shadow: 0 0 20px rgba(74,184,255,0.8), 0 0 50px rgba(74,184,255,0.3);
-    letter-spacing: 0.08em;
+  @keyframes marquee {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
   }
-  #hud .sublabel {
-    font-size: 0.5rem;
-    letter-spacing: 0.25em;
-    color: rgba(74,184,255,0.35);
-    margin-top: 3px;
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
-  #alert-bar {
-    position: absolute;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.52rem;
-    letter-spacing: 0.3em;
-    color: rgba(74,184,255,0.4);
-    white-space: nowrap;
-    pointer-events: none;
-    animation: pulse 2s ease-in-out infinite;
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
   }
-  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+  @keyframes rainbow-shift {
+    0% { filter: drop-shadow(3px 3px 0 #000) hue-rotate(0deg); }
+    100% { filter: drop-shadow(3px 3px 0 #000) hue-rotate(360deg); }
+  }
+  @keyframes glow-red {
+    from { box-shadow: 0 0 5px #ff0000; }
+    to { box-shadow: 0 0 20px #ff4400, 0 0 40px #ff0000; }
+  }
+  @keyframes twinkle {
+    from { opacity: 0.4; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1.1); }
+  }
+  @keyframes pulse-border {
+    0%, 100% { border-color: #ff00ff; }
+    50% { border-color: #ffd700; }
+  }
 </style>
 </head>
 <body>
-<div id="wrap">
-  <canvas id="c"></canvas>
-  <div id="hud">
-    <div class="label">⚠ UNKNOWN NARRATIVE PHYSICALITY - ARRIVAL SOON</div>
-    <div class="countdown" id="cd">00:00:00:00</div>
-    <div class="sublabel">days · hours · minutes · seconds</div>
+
+<div class="page-wrapper">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <div class="icons-row">
+      <span class="halo-icon">😇</span>
+      <span class="spinning-icon">✨</span>
+      <span class="halo-icon">🕊️</span>
+      <span class="spinning-icon">✨</span>
+      <span class="halo-icon">😇</span>
+    </div>
+    <div class="wordart-title">The Church of Chloe</div>
+    <div class="subtitle">~ Blessed Are Those Who Believe In Her Divine Wisdom ~</div>
+    <div style="padding-bottom:10px; font-size:11px; color:#ff99ff; letter-spacing:3px;">
+      EST. 2026 &nbsp;✦&nbsp; SPREADING THE HOLY WORD SINCE FOREVER &nbsp;✦&nbsp;
+      <span style="animation:blink 0.7s step-start infinite; display:inline-block;">PRAISE CHLOE!!!</span>
+    </div>
+    <div class="icons-row" style="padding-top:0;">
+      <span class="pixel-cross"></span>
+      <span class="pixel-cross"></span>
+      <span class="pixel-cross"></span>
+      <span class="pixel-cross"></span>
+      <span class="pixel-cross"></span>
+    </div>
   </div>
-  <div id="alert-bar">TRAJECTORY LOCKED · ORIGIN: UNKNOWN · VELOCITY: 77.7 km/s</div>
-</div>
+
+  <!-- ===== MARQUEE ===== -->
+  <div class="marquee-bar">
+    <span class="marquee-inner">
+      <span>✦</span> WELCOME TO THE OFFICIAL HOMEPAGE OF THE CHURCH OF CHLOE!!!
+      <span>✝</span> SUNDAY SERVICE: 10AM &amp; 7PM
+      <span>✦</span> CHLOE LOVES YOU AND SO DO WE!!!
+      <span>✝</span> NEW: CHLOE'S HOLY SCREENSAVER — FREE DOWNLOAD!!!
+      <span>✦</span> DON'T FORGET TO SIGN OUR GUESTBOOK!!!
+      <span>✝</span> HER DIVINE WISDOM UPDATED EVERY MOON PHASE
+      <span>✦</span> DIAL-UP FRIENDLY!!! BEST VIEWED AT 800x600
+      <span>✝</span> PRAISE BE TO CHLOE!!!
+      <span>✦</span>
+    </span>
+  </div>
+
+  <!-- ===== NAVIGATION ===== -->
+  <table class="nav-table">
+    <tr>
+      <td><a href="#">🏠 HOME</a></td>
+      <td><a href="#">📖 THE GOSPEL</a></td>
+      <td><a href="#">🙏 ABOUT CHLOE</a></td>
+      <td><a href="#">📅 SERVICES</a></td>
+      <td><a href="#">💌 GUESTBOOK</a></td>
+      <td><a href="#">📸 PHOTOS</a></td>
+      <td><a href="#">🔗 HOLY LINKS</a></td>
+    </tr>
+  </table>
+
+  <div class="rainbow-div"></div>
+
+  <!-- ===== MAIN BODY ===== -->
+  <div class="content-area">
+
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <div class="sidebar">
+
+      <!-- VISITOR COUNTER -->
+      <div class="sidebar-box">
+        <h4>Visitor #</h4>
+        <div class="counter">004721</div>
+        <div class="counter-label">souls saved &amp; counting!!!</div>
+      </div>
+
+      <!-- QUICK LINKS -->
+      <div class="sidebar-box">
+        <h4>✦ Holy Links ✦</h4>
+        <a href="#">📜 Read the Gospel</a>
+        <a href="#">🎵 Hymns of Chloe</a>
+        <a href="#">💌 Prayer Requests</a>
+        <a href="#">📧 E-mail the Pastor</a>
+        <a href="#">🖨️ Print Bulletins</a>
+        <a href="#">💾 Downloads</a>
+      </div>
+
+      <!-- CURRENT DATE/TIME -->
+      <div class="sidebar-box" style="border-color:#ffd700;">
+        <h4 style="color:#ffd700; animation:none;">📅 Today Is:</h4>
+        <p id="dateDisplay" style="color:#00ffff; font-size:11px;"></p>
+        <p style="color:#ff99ff; font-size:10px; margin-top:6px;">"Each day is a blessing from Chloe Above."</p>
+      </div>
+
+      <!-- PRAYER POLL -->
+      <div class="sidebar-box" style="border-color:#ff9900;">
+        <h4 style="color:#ff9900; animation:none;">🗳️ Holy Poll!</h4>
+        <p>What is Chloe's best miracle?</p>
+        <p>🔘 The Great Inability to eat an Apple</p>
+        <p>🔘 Drinking copious amounts of Alchohol</p>
+        <p>🔘 The Bench</p>
+        <p>🔘 The Snacks, y'know the ones.<p>
+        <a href="#" class="retro-button" style="font-size:10px; padding:3px 8px; margin-top:6px;">VOTE!!!</a>
+      </div>
+
+      <!-- BANNER BUTTONS -->
+      <div class="sidebar-box">
+        <h4>Our Friends:</h4>
+        <div class="banner-area">
+          <div class="banner-btn b1">Chloe Fan Club Webring</div>
+          <div class="banner-btn b2">The Holy Digest</div>
+          <div class="banner-btn b3">Gospel Webs Online</div>
+          <div class="banner-btn b4">Made With Love &amp; FrontPage 98</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+
+      <!-- WELCOME ANNOUNCEMENT -->
+      <div class="announcement">
+        <h3>⚠️ IMPORTANT ANNOUNCEMENT ⚠️</h3>
+        <p>CHLOE HAS SPOKEN!!! The Annual Holy Girl Scout Bake Sale has been moved to Saturday!!!</p>
+        <p>Bring your best cookies &amp; Jell-O molds!!! All proceeds go to the new stained glass window fund!!!</p>
+      </div>
+
+      <!-- WELCOME MESSAGE -->
+      <div class="section-header">
+        <span class="stars">★</span>
+        Welcome, Beloved Children of Chloe!!!
+        <span class="stars">★</span>
+      </div>
+      <div class="content-block">
+        <p>GREETINGS AND BLESSINGS, dear visitor!!!
+        You have been <strong>DIVINELY GUIDED</strong> to this sacred page by Chloe Herself!!! 
+        Whether you came here from a search engine, a link, or a forwarded e-mail from your Aunt Judy, 
+        <em>know that this was NO accident!!!</em></p>
+
+        <p>The <strong>Church of Chloe</strong> has been spreading Her holy message since <strong>2026</strong>, 
+        when the Blessed One appeared to our founder, Pastor Gerald, 
+        in the cereal aisle of a local gas station. Since then, we have grown to over 
+        <strong>47 devoted members</strong> across all 50 states!!! 🙏</p>
+
+        <p>Our mission is simple: <em>"These shorts have no fucking pockets and it's pissing me off. They look like jeans, why dodn't they have pockets?"</em>
+        — <strong>The Book of Chloe, Chapter 4, Verse 11</strong></p>
+
+        <hr class="fancy">
+
+        <p>⚡ THIS SITE CONTAINS <strong>HOLY CONTENT</strong> — Please allow all 
+        <span style="color:#ff00ff;">☆ ANIMATED GIFS ☆</span> to load fully for 
+        the complete spiritual experience!!! 
+        <span class="new-badge">NEW!</span></p>
+      </div>
+
+      <!-- SERVICES SCHEDULE -->
+      <div class="section-header">📅 Weekly Service Schedule</div>
+      <div class="content-block">
+        <table class="schedule-table">
+          <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Event</th>
+            <th>Location</th>
+          </tr>
+          <tr><td>Sunday</td><td>10:00 AM</td><td>Morning Praise Service</td><td>Main Sanctuary</td></tr>
+          <tr><td>Sunday</td><td>7:00 PM</td><td>Evening Hymns &amp; Potluck</td><td>Fellowship Hall</td></tr>
+          <tr><td>Tuesday</td><td>6:30 PM</td><td>Bible Study (Chloe's Teachings)</td><td>Pastor's Den</td></tr>
+          <tr><td>Wednesday</td><td>7:00 PM</td><td>Holy Aerobics w/ Sister Debbie</td><td>Parking Lot B</td></tr>
+          <tr><td>Friday</td><td>8:00 PM</td><td>Teen Youth Group Chat 💬</td><td>Computer Lab</td></tr>
+          <tr><td>Saturday</td><td>All Day</td><td>🎉 HOLY BAKE SALE!!! 🎉</td><td>Church Lawn</td></tr>
+        </table>
+      </div>
+
+      <!-- TESTIMONIALS -->
+      <div class="section-header">💬 Testimonials From Our Flock!!!</div>
+      <div class="content-block">
+        <div class="testimonial">
+          "Before I found the Church of Chloe, I was lost. Then Pastor Gerald gave me a pamphlet AND a 
+          Tupperware container of pasta salad. I have never looked back!!!"
+          <br><strong>— BlessedInBeaverton_99</strong>
+        </div>
+        <div class="testimonial">
+          "Chloe's miracle of the Bench saved my marriage. True story!!! 
+          I was about to divorce Gary but then we found a bench RIGHT IN FRONT and we knew 
+          it was a sign. We're still together!!!"
+          <br><strong>— PraisedPatricia</strong>
+        </div>
+        <div class="testimonial">
+          "The Holy Aerobics on Wednesday changed my LIFE!!! Sister Debbie's gospel step-aerobics 
+          routine is something the world was not ready for in 1996 but WE WERE!!!"
+          <br><strong>— FitInFaith_2001</strong>
+        </div>
+        <div style="text-align:center; margin-top:10px;">
+          <a href="#" class="retro-button">📖 Read More Testimonials!!!</a>
+          <a href="#" class="retro-button">💌 Submit Your Own!!!</a>
+        </div>
+      </div>
+
+      <!-- THE HOLY WORD -->
+      <div class="section-header">✝ This Week's Holy Scripture ✝</div>
+      <div class="content-block" style="border-color:#ffd700; text-align:center;">
+        <p style="color:#ffd700; font-size:22px; font-family:'Times New Roman', serif; 
+                  text-shadow: 0 0 10px #ffd700; line-height:1.5;">
+          ❝Fuck<br>
+          You❞
+        </p>
+        <p style="color:#cc99ff; font-size:13px; margin-top:8px;">
+          — <em>The Book of Chloe, Chapter 12, Verse 7</em>
+        </p>
+        <hr class="fancy">
+        <p style="font-size:11px; color:#aaaacc;">
+          New scripture updated every Sunday! Bookmark this page and refresh often!!! 
+          <span class="new-badge">NEW!</span>
+        </p>
+      </div>
+
+      <!-- GUESTBOOK -->
+      <div class="section-header">📖 Sign Our Guestbook!!!</div>
+      <div class="content-block" style="text-align:center;">
+        <p>Already <strong style="color:#00ff00; font-size:16px;">127 pilgrims</strong> have signed 
+        our sacred guestbook!!! Add your blessing today!!!
+        <span class="new-badge">NEW!</span></p>
+        <p style="font-size:11px; color:#ccaaff; margin-bottom:10px;">
+          Recent entries: "PRAISE CHLOE FROM OHIO!!!" | "Found u on Yahoo Search :)" | 
+          "This is my 3rd time signing lol" | "Tell Pastor Gerald hi from Omaha"
+        </p>
+        <a href="#" class="retro-button">📝 SIGN THE GUESTBOOK</a>
+        <a href="#" class="retro-button">👀 VIEW GUESTBOOK</a>
+      </div>
+
+    </div><!-- end main-content -->
+  </div><!-- end content-area -->
+
+  <div class="rainbow-div"></div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <div class="under-construction">
+      🚧 THIS PAGE IS UNDER CONSTRUCTION — PLEASE COME BACK SOON!!! 🚧
+    </div>
+    <div style="margin: 10px 0;">
+      <div class="pixel-cross"></div>
+      <div class="pixel-cross"></div>
+      <div class="pixel-cross"></div>
+    </div>
+    <p>
+      <a href="#">Home</a> |
+      <a href="#">Gospel</a> |
+      <a href="#">About Chloe</a> |
+      <a href="#">Services</a> |
+      <a href="#">Guestbook</a> |
+      <a href="#">E-Mail Us</a>
+    </p>
+    <p>© 2026–2130 The Church of Chloe. All rights reserved. Hallelujah.</p>
+    <p>Webmaster: deacon_steve@aol.com &nbsp;|&nbsp; Last updated: sometime in March probably</p>
+    <p>
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='31'%3E%3Crect width='88' height='31' fill='%230000cc'/%3E%3Ctext x='44' y='20' text-anchor='middle' font-size='8' fill='white' font-family='Arial'%3ENetscape Now!%3C/text%3E%3C/svg%3E" alt="Netscape Now!" style="margin:4px; border:1px solid #fff; vertical-align:middle;">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='31'%3E%3Crect width='88' height='31' fill='%23cc6600'/%3E%3Ctext x='44' y='20' text-anchor='middle' font-size='7' fill='white' font-family='Arial'%3EMade w/ FrontPage%3C/text%3E%3C/svg%3E" alt="Made with FrontPage" style="margin:4px; border:1px solid #fff; vertical-align:middle;">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='31'%3E%3Crect width='88' height='31' fill='%23006600'/%3E%3Ctext x='44' y='20' text-anchor='middle' font-size='7' fill='%2300ff00' font-family='Arial'%3EY2K READY✓%3C/text%3E%3C/svg%3E" alt="Y2K Ready" style="margin:4px; border:1px solid #fff; vertical-align:middle;">
+    </p>
+    <p class="best-viewed">Best viewed in Netscape Navigator 4.0 at 800×600 resolution with sound on!!!</p>
+    <p class="best-viewed" style="margin-top:4px;">
+      <span style="color:#ff9900; animation:blink 1s step-start infinite; display:inline-block;">
+        ✉ Get your FREE e-mail at HotMail.com ✉
+      </span>
+    </p>
+  </div>
+
+</div><!-- end page-wrapper -->
 
 <script>
-// ── Canvas ───────────────────────────────────────────────────────
-const canvas = document.getElementById('c');
-const ctx    = canvas.getContext('2d');
-function resize() {
-  const s = Math.min(window.innerWidth, window.innerHeight, 820);
-  canvas.width = canvas.height = s;
-}
-resize();
-window.addEventListener('resize', resize);
-
-// ── Countdown ────────────────────────────────────────────────────
-// Fixed universal target — same on every device
-const END = new Date('2026-04-15T22:00:00Z').getTime();
-
-function updateCountdown() {
-  const rem = Math.max(0, END - Date.now());
-  const d = Math.floor(rem / 86400000);
-  const h = Math.floor((rem % 86400000) / 3600000);
-  const m = Math.floor((rem % 3600000)  / 60000);
-  const s = Math.floor((rem % 60000)    / 1000);
-  document.getElementById('cd').textContent =
-    String(d).padStart(2,'0') + ':' + String(h).padStart(2,'0') + ':' +
-    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-}
-setInterval(updateCountdown, 1000);
-updateCountdown();
-
-// ── Planet data ──────────────────────────────────────────────────
-// a    : semi-major axis as fraction of canvas half-width
-//        (sqrt-AU scaled so all 8 planets fit: Neptune → 0.80)
-// e    : real eccentricity
-// peri : longitude of perihelion — orients each ellipse uniquely
-// period: real orbital period in days → drives relative angular speed
-const planets = [
-  { name:'Mercury', a:0.091, e:0.206, peri:1.35, r:3,  color:'#b5b5b5', period:87.97,   angle:1.2 },
-  { name:'Venus',   a:0.124, e:0.007, peri:2.55, r:5,  color:'#e8cda0', period:224.7,   angle:2.5 },
-  { name:'Earth',   a:0.146, e:0.017, peri:1.80, r:6,  color:'#4fa3e0', period:365.25,  angle:0.8, isEarth:true },
-  { name:'Mars',    a:0.180, e:0.093, peri:5.00, r:4,  color:'#c1440e', period:686.97,  angle:4.1 },
-  { name:'Jupiter', a:0.333, e:0.049, peri:0.26, r:13, color:'#c88b3a', period:4332.59, angle:0.3 },
-  { name:'Saturn',  a:0.451, e:0.057, peri:1.62, r:11, color:'#e4d191', period:10759.2, angle:3.6, ring:true },
-  { name:'Uranus',  a:0.639, e:0.046, peri:2.98, r:8,  color:'#7de8e8', period:30688.5, angle:5.2 },
-  { name:'Neptune', a:0.800, e:0.010, peri:0.78, r:7,  color:'#4b70dd', period:60182,   angle:2.0 },
-];
-
-// Earth does one screen-orbit in ~60s; all others scaled by real period ratio
-const EARTH_SPEED = (2 * Math.PI) / 60000;
-planets.forEach(p => p.speed = EARTH_SPEED * (365.25 / p.period));
-
-// Kepler ellipse position: sun at one focus
-function planetPos(p, cx, cy, scale) {
-  const a  = p.a * scale;
-  const b  = a * Math.sqrt(1 - p.e * p.e);
-  const c  = a * p.e;
-  const xe = a * Math.cos(p.angle) - c;
-  const ye = b * Math.sin(p.angle);
-  return {
-    x: cx + xe * Math.cos(p.peri) - ye * Math.sin(p.peri),
-    y: cy + xe * Math.sin(p.peri) + ye * Math.cos(p.peri),
-  };
-}
-
-// ── Starfield ────────────────────────────────────────────────────
-const stars = Array.from({length: 320}, () => ({
-  x: Math.random(), y: Math.random(),
-  r: Math.random() * 1.2 + 0.2,
-  a: Math.random() * 0.6 + 0.2,
-}));
-
-// ── Approach progress ────────────────────────────────────────────
-function getProgress() {
-  const total = END - new Date('2026-04-03T12:00:00Z').getTime(); // 2-day window
-  return Math.min(1, Math.max(0, (total - (END - Date.now())) / total));
-}
-
-// ── Draw loop ────────────────────────────────────────────────────
-let last = 0;
-function draw(ts) {
-  requestAnimationFrame(draw);
-  const dt = ts - last; last = ts;
-  const W = canvas.width, H = canvas.height;
-  const cx = W / 2, cy = H / 2;
-  const scale = W / 2;
-
-  planets.forEach(p => p.angle += p.speed * dt);
-
-  ctx.clearRect(0, 0, W, H);
-
-  // Background
-  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, scale);
-  bg.addColorStop(0, '#00001a');
-  bg.addColorStop(1, '#000008');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-
-  // Stars
-  stars.forEach(s => {
-    ctx.beginPath();
-    ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${s.a})`;
-    ctx.fill();
-  });
-
-  // Elliptical orbit paths
-  planets.forEach(p => {
-    const a = p.a * scale;
-    const b = a * Math.sqrt(1 - p.e * p.e);
-    const c = a * p.e;
-    // Ellipse center is offset from the sun (focus) by c along perihelion direction
-    const ecx = cx - c * Math.cos(p.peri);
-    const ecy = cy - c * Math.sin(p.peri);
-    ctx.save();
-    ctx.translate(ecx, ecy);
-    ctx.rotate(p.peri);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, a, b, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-  });
-
-  // Sun
-  const sunGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60);
-  sunGlow.addColorStop(0,   'rgba(255,240,120,1)');
-  sunGlow.addColorStop(0.3, 'rgba(255,180,40,0.8)');
-  sunGlow.addColorStop(0.7, 'rgba(255,120,0,0.2)');
-  sunGlow.addColorStop(1,   'rgba(255,80,0,0)');
-  ctx.beginPath(); ctx.arc(cx, cy, 60, 0, Math.PI * 2);
-  ctx.fillStyle = sunGlow; ctx.fill();
-  ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI * 2);
-  ctx.fillStyle = '#fffbe8';
-  ctx.shadowColor = '#ffdd55'; ctx.shadowBlur = 30;
-  ctx.fill(); ctx.shadowBlur = 0;
-
-  // Earth position (for approach line target)
-  const earthP = planets.find(p => p.isEarth);
-  const ep = planetPos(earthP, cx, cy, scale);
-
-  // Approach trajectory
-  const originAngle = -0.62;
-  const ox = cx + Math.cos(originAngle) * scale * 1.15;
-  const oy = cy + Math.sin(originAngle) * scale * 1.15;
-
-  ctx.save();
-  ctx.setLineDash([6, 8]);
-  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ep.x, ep.y);
-  ctx.strokeStyle = 'rgba(74,184,255,0.45)';
-  ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
-
-  // Moving triangle
-  const prog = getProgress();
-  const dotX = ox + (ep.x - ox) * prog;
-  const dotY = oy + (ep.y - oy) * prog;
-
-  // Trail
-  const trailStart = Math.max(0, prog - 0.06);
-  const tsx = ox + (ep.x - ox) * trailStart;
-  const tsy = oy + (ep.y - oy) * trailStart;
-  const trailGrad = ctx.createLinearGradient(tsx, tsy, dotX, dotY);
-  trailGrad.addColorStop(0, 'rgba(74,184,255,0)');
-  trailGrad.addColorStop(1, 'rgba(74,184,255,0.5)');
-  ctx.beginPath(); ctx.moveTo(tsx, tsy); ctx.lineTo(dotX, dotY);
-  ctx.strokeStyle = trailGrad; ctx.lineWidth = 2.5; ctx.stroke();
-
-  // Upside-down triangle
-  const triSize = 11;
-  ctx.save();
-  ctx.translate(dotX, dotY);
-  ctx.beginPath();
-  ctx.moveTo(-triSize, -triSize);
-  ctx.lineTo( triSize, -triSize);
-  ctx.lineTo(0,  triSize);
-  ctx.closePath();
-  ctx.fillStyle = '#000000'; ctx.fill();
-  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.8;
-  ctx.shadowColor = 'rgba(255,255,255,0.6)'; ctx.shadowBlur = 6;
-  ctx.stroke(); ctx.shadowBlur = 0;
-  ctx.restore();
-
-  // Planets
-  planets.forEach(p => {
-    const pos = planetPos(p, cx, cy, scale);
-    const px = pos.x, py = pos.y;
-
-    // Saturn ring
-    if (p.ring) {
-      ctx.save();
-      ctx.translate(px, py);
-      ctx.rotate(0.4); ctx.scale(1, 0.35);
-      ctx.beginPath();
-      ctx.arc(0, 0, p.r * 2.2, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(220,200,120,0.55)';
-      ctx.lineWidth = 3.5; ctx.stroke();
-      ctx.restore();
+  // Update date display
+  function updateDate() {
+    const d = new Date();
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const el = document.getElementById('dateDisplay');
+    if (el) {
+      el.innerHTML = days[d.getDay()] + ',<br>' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
     }
-
-    // Glow
-    const glow = ctx.createRadialGradient(px, py, 0, px, py, p.r * 3);
-    glow.addColorStop(0, p.color + 'aa');
-    glow.addColorStop(1, p.color + '00');
-    ctx.beginPath(); ctx.arc(px, py, p.r * 3, 0, Math.PI * 2);
-    ctx.fillStyle = glow; ctx.fill();
-
-    // Body
-    ctx.beginPath(); ctx.arc(px, py, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = p.color;
-    ctx.shadowColor = p.color; ctx.shadowBlur = 6;
-    ctx.fill(); ctx.shadowBlur = 0;
-
-    // Earth ring
-    if (p.isEarth) {
-      ctx.beginPath(); ctx.arc(px, py, p.r + 3, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(74,184,255,0.5)';
-      ctx.lineWidth = 1.2; ctx.stroke();
-    }
-
-    // Label
-    if (W > 400) {
-      ctx.font = `${Math.max(9, W * 0.012)}px 'Share Tech Mono'`;
-      ctx.fillStyle = 'rgba(255,255,255,0.45)';
-      ctx.fillText(p.name, px + p.r + 4, py - p.r - 2);
-    }
-  });
-}
-requestAnimationFrame(draw);
+  }
+  updateDate();
 </script>
+
 </body>
 </html>
