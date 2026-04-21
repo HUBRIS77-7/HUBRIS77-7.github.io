@@ -236,193 +236,178 @@ be flagged, traced, and escalated to CONTROL.
 <span class="br">────────────────────────────────────────</span>
 <span class="cmt">// END OF FILE</span>`
   },
-  __system: {
+  __NavSys: {
     __folder: true,
-    'config.cfg': {
+    'NavLog.txt': {
       content: `<span class="cmt"># ΗΤΑ Runtime Configuration</span>
 <span class="cmt"># Last modified: 2024.11.02  23:47:11</span>
 <span class="cmt"># DO NOT EDIT WHILE SYSTEM IS ACTIVE</span>
 
 <span class="kw">[network]</span>
-  host          = <span class="val">0.0.0.0</span>
-  port          = <span class="val">7741</span>
-  tls           = <span class="val">true</span>
-  tls_cert      = <span class="val">/etc/eta/cert.pem</span>
-  tls_key       = <span class="val">/etc/eta/priv.pem</span>
-  max_conn      = <span class="val">4</span>
-  timeout_ms    = <span class="val">30000</span>
+  NAV-OS-KEY          = <span class="val">1.2.1.4</span>
+  NAV-PORT          = <span class="val">7777</span>
+  NAV-SIG           = <span class="val">[REDACTEDD]</span>
+  NAV-BACKUP      = <span class="val">/BACKUPS/NavSys.sys</span>
+  NAV-UPLINK       = <span class="val">/Network-Links/NAVUP.link</span>
+  CONN-RANGE      = <span class="val">190 LY</span>
+  NAV-TIMEOUT    = <span class="val">30000 ms</span>
 
-<span class="kw">[auth]</span>
-  mode          = <span class="val">token+otp</span>
-  token_ttl     = <span class="val">3600</span>
-  otp_window    = <span class="val">2</span>
-  fail_limit    = <span class="val">3</span>
-  lockout_s     = <span class="val">900</span>
+<span class="kw">[SPECS]</span>
+  CPU          = <span class="val">AM/D NAVGUIDENCE 9-S-00</span>
+  GPU     = <span class="val">TPRS Graphics Unit For Astro Navigation (TPRSGUFAN)</span>
+  ASTRO-PREDICT    = <span class="val">LCC-07 "NECTARIS"</span>
+  INTRA-UPLINK    = <span class="val">TAF STANDARD UPLINK UNIT 9</span>
+  SECURITY COMPUTER     = <span class="val">[REDACTED]</span>
 
-<span class="kw">[storage]</span>
-  root          = <span class="val">/mnt/eta/fs</span>
-  enc_algo      = <span class="val">AES-256-GCM</span>
-  key_derive    = <span class="val">argon2id</span>
-  wipe_on_fail  = <span class="val">false</span>  <span class="cmt"># operator override</span>
+<span class="kw">[PREV-DESTS]</span>
+  DEST-1          = <span class="val">UNIFIED ORBITAL LUNAR SUPPLY STATION 02</span>
+  DEST-2      = <span class="val">ARES-7 ORBITAL FUELING STATION</span>
+  DEST-3    = <span class="val">SOL-SYSTEM GATE "SHIT OUT OF LUCK"</span>
+  DEST-???  = <span class="val">EARTH ORBIT</span>  <span class="cmt"># There seems to be a problem with displaying this destination, as time travel is not possible.</span>
 
-<span class="kw">[logging]</span>
-  level         = <span class="val">INFO</span>
-  dest          = <span class="val">/var/log/eta/sys.log</span>
-  rotate_mb     = <span class="val">50</span>
-  keep_days     = <span class="val">7</span>
-  redact_ip     = <span class="val">true</span>
+<span class="kw">[FUTURE-DEST]</span>
+  DEST-5         = <span class="val">ALTAIR 7</span>
 
-<span class="kw">[ops]</span>
-  active_cell   = <span class="val">HELIOS</span>
-  standby_cell  = <span class="val">NOCTUA</span>
-  comm_interval = <span class="val">900</span>  <span class="cmt"># seconds</span>
-  dead_drop     = <span class="val">enabled</span>`
+<span class="kw">[SUB-NAV-UNITS]</span>
+  SUB-1   = <span class="val">'LUNA' RECON VEHICLE</span>
+  SUB-2  = <span class="val">'CANYON' PLANETARY LANDER AND TRANSPORT VEHICLE</span>
+  SUB-3 = <span class="val">'WINDMILL' NARRATIVE CONTAINMENT VEHICLE</span>  <span class="cmt"># UNKNOWN ORIGIN.</span>`
     },
-    'boot.log': {
+    'Destination.nav': {
       content: `<span class="br">──────────────────────────────────────────────────</span>
 <span class="cmt"> ΗΤΑ-TERMINAL  /  BOOT SEQUENCE LOG</span>
 <span class="cmt"> 2024.11.03  04:11:58 UTC</span>
 <span class="br">──────────────────────────────────────────────────</span>
 
-<span class="val">[04:11:58.001]</span> <span class="kw">BIOS</span>    Power-on self-test ............. <span class="ok">OK</span>
-<span class="val">[04:11:58.043]</span> <span class="kw">BIOS</span>    Memory check (16 GiB) .......... <span class="ok">PASS</span>
-<span class="val">[04:11:58.102]</span> <span class="kw">BOOT</span>    Loading kernel image ........... <span class="ok">OK</span>
-<span class="val">[04:11:58.881]</span> <span class="kw">KERNEL</span>  Unpacking initrd ............... <span class="ok">OK</span>
-<span class="val">[04:11:59.230]</span> <span class="kw">KERNEL</span>  Mounting root filesystem ........ <span class="ok">OK</span>
-<span class="val">[04:11:59.441]</span> <span class="kw">NET</span>     Bringing up lo ................. <span class="ok">OK</span>
-<span class="val">[04:11:59.502]</span> <span class="kw">NET</span>     Bringing up eth0 ............... <span class="ok">OK</span>
-<span class="val">[04:11:59.503]</span> <span class="kw">NET</span>     Assigned <span class="val">10.44.7.21</span>
-<span class="val">[04:11:59.891]</span> <span class="kw">CRYPTO</span>  Loading keys from TPM .......... <span class="ok">OK</span>
-<span class="val">[04:12:00.003]</span> <span class="kw">CRYPTO</span>  Deriving session key ........... <span class="ok">OK</span>
-<span class="val">[04:12:00.104]</span> <span class="kw">FS</span>      Mounting encrypted volume ....... <span class="ok">OK</span>
-<span class="val">[04:12:00.412]</span> <span class="kw">DAEMON</span>  Starting eta-core .............. <span class="ok">OK</span>
-<span class="val">[04:12:00.813]</span> <span class="kw">DAEMON</span>  Starting eta-comms ............. <span class="ok">OK</span>
-<span class="val">[04:12:01.001]</span> <span class="kw">DAEMON</span>  Starting eta-monitor ........... <span class="ok">OK</span>
-<span class="val">[04:12:02.500]</span> <span class="kw">AUTH</span>    Waiting for operator token ...
-<span class="val">[04:12:09.017]</span> <span class="kw">AUTH</span>    Token validated ................ <span class="ok">GRANTED</span>
-<span class="val">[04:12:09.018]</span> <span class="kw">SESSION</span> Terminal session opened
+<span class="val">[04:11:58.001]</span> <span class="kw">NAV</span>    BEGINING ENTRY BURN <span class="ok">OK</span>
+<span class="val">[04:11:58.043]</span> <span class="kw">NAV</span>    ENTERING 'SHIT OUT OF LUCK' SOL GATE <span class="ok">PASS</span>
+<span class="val">[04:11:58.102]</span> <span class="kw">INT-CLOCK</span>  ERROR <span class="ok">?</span>
+<span class="val">[04:11:58.881]</span> <span class="kw">NAV</span>  CUTTING THRUSTER FUEL LINES TO LESSEN CHANCE OF ACCIDENT <span class="ok">OK</span>
+<span class="val">[04:11:59.230]</span> <span class="kw">NAV</span>  ACTIVATING LARGE SCALE RCS TO COUNTERACT ACCELERATION <span class="ok">OK</span>
+<span class="val">[04:11:59.441]</span> <span class="kw">RCS-SYS</span>     ERROR <span class="ok">?</span>
+<span class="val">[04:11:59.502]</span> <span class="kw">NAV</span>    REORIENTING RETROGRADE AND BURNING <span class="ok">OK</span>
+<span class="val">[04:11:59.503]</span> <span class="kw">NAV</span>     FAILED <span class="val">MANUAL COMMAND AUTHORIZED</span>
+<span class="val">[04:11:59.891]</span> <span class="kw">WHEEL</span>  TURNING SHIP PROGRADE <span class="ok">OK</span>
+<span class="val">[04:12:00.003]</span> <span class="kw">WHEEL</span>  BURING 30,000 DELTA V <span class="ok">OK</span>
+<span class="val">[04:12:00.104]</span> <span class="kw">INT-CLOCK</span>   ERROR RESOLVED <span class="ok">CALCULATING NEW TIME</span>
+<span class="val">[04:12:00.412]</span> <span class="kw">SCI-COMP-CORE</span>  ACCESSING NAV-LOGS <span class="ok">OK</span>
+<span class="val">[04:12:00.813]</span> <span class="kw">SCI-COMP-CORE</span>  OPENING SHIP-CHANNEL <span class="ok">OK</span>
+<span class="val">[04:12:01.001]</span> <span class="kw">SEC-COMP-CORE</span>  DEACTIVATING NAV-COMP-CORE <span class="ok">OK</span>
+<span class="val">[04:12:02.500]</span> <span class="kw">NAV?</span>    NO! NO! DON'T LEAVE ME HERE
+<span class="val">[04:12:09.017]</span> <span class="kw">NAV.</span>    YOU DON'T GET TO DO THIS TO ME. <span class="ok">WIND-DOWN BEGUN</span>
+<span class="val">[04:12:09.018]</span> <span class="kw">NAV-COMP-CORE</span> NAV SESSION TERMINATED
 <span class="val">[04:12:09.019]</span>
-<span class="ok">                ─── SYSTEM READY ───</span>`
+<span class="ok">                ─── SYSTEM READY FOR REBOOT ───</span>`
     }
   },
-  __ops: {
+  __CrewLog: {
     __folder: true,
-    'mission_001.txt': {
-      content: `<span class="hd">OPERATIONAL BRIEF  —  MISSION 001</span>
+    'Clone-Unmonitored-Production.txt': {
+      content: `<span class="hd">Meeting Transcript between Head of Security ([REDACTED]) and Head of Science ([REDACTED])</span>
 <span class="br">════════════════════════════════════════</span>
 
-<span class="kw">CODENAME:</span>    <span class="val">FIRST LIGHT</span>
-<span class="kw">DATE:</span>        <span class="val">2024.07.14</span>
-<span class="kw">ISSUED BY:</span>   <span class="val">CONTROL</span>
-<span class="kw">CLEARANCE:</span>   <span class="er">SIGMA-3</span>
-<span class="kw">STATUS:</span>      <span class="ok">COMPLETED</span>
+
+<span class="kw">DATE:</span>        <span class="val">2149 January 22nd</span>
+<span class="kw">LOCATION:</span>   <span class="er">COMMAND AND CONTROL DECK</span>
+
 
 <span class="br">────────────────────────────────────────</span>
-<span class="kw">OBJECTIVE</span>
+<span class="kw">TRANSCRIPT BEGIN</span>
 
-Establish encrypted communication channel
-between nodes HELIOS and NOCTUA. Confirm
-handshake integrity and log session keys
-to secure archive. No direct contact.
+<p style="color: red;">H-O-SCI:</p> And they're doing it everywhere?
 
-<span class="kw">CONSTRAINTS</span>
+<p style="color: blue;">H-O-SEC:</p> Tragically.
 
-  — All traffic must route via Tor layer
-  — Session window: max 90 seconds
-  — Abort trigger: three failed pings
-  — No persistent identifiers in transit
+<p style="color: red;">H-O-SCI:</p> Everywhere?
 
-<span class="kw">OUTCOME</span>
+<p style="color: blue;">H-O-SEC:</p> Every way possible too.
 
-Channel established at <span class="val">22:07:44 UTC</span>.
-Handshake confirmed. Keys archived.
-Zero anomalies detected.
+<p style="color: red;">H-O-SCI:</p> Fuck me. The clones shouldn't be able to do that. How many are they up to now?
+
+<p style="color: blue;">H-O-SEC:</p> They produce at a rate of about 2400 a day. Mature in 9 days... About... 50,000 more than when we started.
+
+<p style="color: red;">H-O-SCI:</p> And we can't vacuum them?
+
+<p style="color: blue;">H-O-SEC:</p> No. Against Interstellar Regulatory Code #13-Alpha. We'd have to go to the SAFRON Office by Neptune and turn them in.
+
+<p style="color: red;">H-O-SCI:</p> You know he's not going to do that. We're behind schedule as is, and the cargo is getting more rowdy with every passing day. We can't find many more ways to box it in.
+
+<p style="color: blue;">H-O-SEC:</p> I'll talk to him. 
+
+<p style="color: grey;">NOISE:</p> *sighing*
+
+<p style="color: blue;">H-O-SEC:</p> Of course, though, there are other ways of disposing of the extras.
+
+<p style="color: red;">H-O-SCI:</p> How so?
+
+<p style="color: blue;">H-O-SEC:</p> Your little... thing. Needs feeding, no?
+
+<p style="color: red;">H-O-SCI:</p> Oh! It doesn't eat...
+
+<p style="color: red;">H-O-SCI:</p> I'll think about it.
+
 
 <span class="br">────────────────────────────────────────</span>
-<span class="am">OPERATOR NOTE:</span>
-Latency on first attempt was 340ms —
-above threshold. Second attempt nominal
-at 112ms. Both logged for review.
+<span class="am">UNKNOWN NOTE:</span>
+TO BE FED.
 
 <span class="cmt">// SIGNED: HELIOS-OPS  /  2024.07.14</span>`
     },
-    'mission_002.txt': {
-      content: `<span class="hd">OPERATIONAL BRIEF  —  MISSION 002</span>
+    'NarratologyLecture.txt': {
+      content: `<span class="hd">Lecture given April 21st, 2149</span>
 <span class="br">════════════════════════════════════════</span>
 
-<span class="kw">CODENAME:</span>    <span class="val">PALE FIRE</span>
-<span class="kw">DATE:</span>        <span class="val">2024.10.29</span>
-<span class="kw">ISSUED BY:</span>   <span class="val">CONTROL</span>
-<span class="kw">CLEARANCE:</span>   <span class="er">SIGMA-3</span>
-<span class="kw">STATUS:</span>      <span class="am">IN PROGRESS</span>
+<p style="color: green;">Jackson Abbot:</p> Narratology is said to be the backbone of the very universe itself, and, by extension, yes, this sentence itself. Narratology believes that every single sentence ever spoken, written, thought, or drawn was written, spoken, thought, or drawn by a being of higher narrative power. They, however, hate it when you call those beings gods. *chuckle* This is because they are not gods. They, these entities capable of massive reality manipulation via just simple narratives, are made of corporeal matter. These are Narrators. Inquisitors of their own will and whims upon the universe, like a Boltzmann brain, they manifest into the universe and do as they please, with very little resistence besides other narrators.
+
+*scribble*
+
+<p style="color: green;">Jackson Abbot:</p> That said, like any and every natural organism present in the universe, there are narrative predators. These are either referred to as Anti-Narratives, beings, or things that cannot be described in any form due to being indescribable to a narrator, or a Narravite. Narravites are quite interesting creatures. They are entirely narrative creatures, existing on the same plane as Narrators in terms of Narratological energy, but still able to impress upon the physical world, though not always having a body. Many of you who made it this far into the course know many of the famous instances. The Paris Smut Eater, The Sun-Dog, Astraeus. These are your typical Narrativites. Quite powerful, but, like their counterparts, they rarely take an interest in hunting Narrators. 
+
+*scribble* <p style="color: green;">Jackson Abbot:</p> Until now. 
 
 <span class="br">────────────────────────────────────────</span>
-<span class="kw">OBJECTIVE</span>
-
-Intercept and decode transmission series
-from frequency cluster 441.7 – 443.1 MHz.
-Cross-reference decoded content against
-pattern library VESPER-9.
-
-<span class="kw">PRIORITY TARGETS</span>
-
-  <span class="er">■</span> Signal batch <span class="val">TX-0041</span> through <span class="val">TX-0058</span>
-  <span class="er">■</span> Identify embedded time markers
-  <span class="er">■</span> Flag any use of codeword: <span class="er">IRON MERIDIAN</span>
-
-<span class="kw">CURRENT PROGRESS</span>
-
-  <span class="val">TX-0041</span>  decoded .............. <span class="ok">✓</span>
-  <span class="val">TX-0042</span>  decoded .............. <span class="ok">✓</span>
-  <span class="val">TX-0043</span>  decoded .............. <span class="ok">✓</span>
-  <span class="val">TX-0044</span>  decoded .............. <span class="ok">✓</span>
-  <span class="val">TX-0045</span>  <span class="am">decoding ...</span>
-  <span class="val">TX-0046</span>  <span class="cmt">pending</span>
-  <span class="val">TX-0047</span>  <span class="cmt">pending</span>
-  <span class="cmt">  …        …</span>
-
 <span class="kw">ANOMALY DETECTED</span>
 
-  <span class="er">WARNING:</span> TX-0044 contains unexpected
-  structure divergence from known patterns.
-  Flagged for manual review. Standby.
+  <span class="er">!/!/!</span> UNKNOWN SYSTEM ACCESS: IP-ID FLAGGED.
 
-<span class="cmt">// LAST UPDATED: 2024.10.31  19:55 UTC</span>`
+  DANIEL'S LINUX SYSTEM.
+
+<span class="cmt">// LAST UPDATED: WATCHING YOU</span>`
     },
-    'assets.txt': {
-      content: `<span class="hd">ASSET REGISTRY  —  ACTIVE</span>
+    'Inventory/Assets.txt': {
+      content: `<span class="hd">NARRATIVITE INVENTORY</span>
 <span class="br">════════════════════════════════════════</span>
 
-<span class="kw">CELL:</span>  <span class="val">HELIOS</span>
+<span class="kw">CELL:</span>  <span class="val">LOW-SEC</span>
 <span class="br">────────────────────────────────────────</span>
 
-  <span class="val">ASSET-01</span>  codename: <span class="kw">CORVUS</span>
-            role:     signals intelligence
-            status:   <span class="ok">ACTIVE</span>
-            contact:  dead drop  /  channel B
+  <span class="val">ASSET-01</span>  codename: <span class="kw">LITERAL</span>
+            TRAIT: Literalizes nearby reality
+            STATUS:   <span class="ok">OK</span>
+            
 
-  <span class="val">ASSET-02</span>  codename: <span class="kw">SABLE</span>
-            role:     human intelligence
-            status:   <span class="am">DORMANT</span>
-            contact:  await reactivation code
+  <span class="val">ASSET-02</span>  codename: <span class="kw">WEBSTER</span>
+            TRAIT: Inserts spiders into any situation where their presence can worsen
+            STATUS:   <span class="am">DORMENT</span>
+          
 
-  <span class="val">ASSET-03</span>  codename: <span class="kw">LYNX</span>
-            role:     technical support
-            status:   <span class="ok">ACTIVE</span>
-            contact:  direct  /  encrypted
+  <span class="val">ASSET-03</span>  codename: <span class="kw">070</span>
+            TRAIT: Attempts to insert itself into other present narratives via the propagation of the number 7
+            STATUS:   <span class="ok">ACT/7/IVE</span>
+            
 
-<span class="kw">CELL:</span>  <span class="val">NOCTUA</span>
+<span class="kw">CELL:</span>  <span class="val">HI-SEC</span>
 <span class="br">────────────────────────────────────────</span>
 
-  <span class="val">ASSET-04</span>  codename: <span class="kw">HARROW</span>
-            role:     logistics
-            status:   <span class="ok">ACTIVE</span>
-            contact:  channel D  /  72h cycle
+  <span class="val">ASSET-04</span>  codename: <span class="kw">GOSPEL</span>
+            TRAIT: Attaches itself to a narratively charged individual and propagates a narrative flow of religious importance around them, often resulting in the creation of cults.
+            STATUS:   <span class="er">CHLOE</span>
+            
 
-  <span class="val">ASSET-05</span>  codename: <span class="kw">VESPER</span>
-            role:     analysis
-            status:   <span class="er">COMPROMISED</span>
-            contact:  <span class="er">SUSPENDED  —  SEE ARCHIVE</span>
+  <span class="val">ASSET-05</span>  codename: <span class="kw">EPITOME</span>
+            TRAIT: Narrative Entropy
+            STATUS:   <span class="er">COMPROMISED</span>
+            
 
 <span class="br">────────────────────────────────────────</span>
 <span class="cmt">// REGISTRY v14  /  2024.10.30</span>`
@@ -430,51 +415,45 @@ pattern library VESPER-9.
   },
   __archive: {
     __folder: true,
-    'origin.txt': {
-      content: `<span class="hd">PROJECT ORIGIN  —  RESTRICTED</span>
+    'PROJECT-KUDOS.txt': {
+      content: `<span class="hd">PROJECT KUDOS  —  RESTRICTED</span>
 <span class="br">════════════════════════════════════════</span>
 
-<span class="kw">PROJECT:</span>   <span class="val">ΗΤΑ  (Eta-Tau-Alpha)</span>
-<span class="kw">FOUNDED:</span>  <span class="val">2021.03.01</span>
-<span class="kw">ORIGIN:</span>   <span class="cmt">[REDACTED]</span>
+<span class="kw">PROJECT:</span>   <span class="val">KUDOS</span>
+<span class="kw">FOUNDED:</span>  <span class="val">2120</span>
+<span class="kw">ORIGIN:</span>   <span class="cmt">NARRATIVE CONTAINMENT INITATIVE</span>
 
 <span class="br">────────────────────────────────────────</span>
 
-ΗΤΑ was conceived as a resilient,
-operator-agnostic intelligence framework
-designed to function entirely outside
-conventional oversight structures.
+Project Kudos was initially developed to contain large-scale and incredibly hazardous
+narrative entities, such as narrators, anti-narratives, and narrativites, within the remaining 
+network infrastructure of the Earth-Bound website Archive of Our Own. Due to the previous usage of the
+website as an archive of fan-fiction content, the NCI saw it fit for the containment of narrative entities.
 
-The name derives from the first three
-letters of the Greek alphabet used as
-operational designators at project
-inception. Their specific meaning is
-known only to the founding operators.
+Since its construction, Project Kudos has been able to successfully hold 78 High-Risk, High-Security Narrative Entities
+due to the amount of content present on the site. Only 2 known entities have escaped from the KUDOS facility. Both
+are being transported back on the ETA, your ship.
 
-<span class="kw">DESIGN PRINCIPLES</span>
+This document has been given to you as an additional briefing for information on GOSPEL and EPITOME, respectively.
 
-  <span class="val">1.</span> Minimal surface — no unnecessary
-     infrastructure, no persistent identity.
+GOSPEL is a rather tame narrative entity that tends to get out of control when not quickly contained after initial breach. Once
+it can connect to a person's narrative energy, it does not let go until either the person dies or all narrative energy is
+expelled. GOSPEL was first discovered in 2037, with the Hong Kong Stellar Plead Crisis. We all know how that went down. Keep your eye
+on it.
 
-  <span class="val">2.</span> Compartmentalization — no single
-     node holds a complete operational picture.
-
-  <span class="val">3.</span> Resilience — the loss of any cell
-     does not compromise the whole.
-
-  <span class="val">4.</span> Deniability — by design.
+EPITOME is a self-reducing narrative entropizer. For lack of a better word to illustrate its danger, it is a wolf, and it is always hungry.
 
 <span class="br">────────────────────────────────────────</span>
 
-<span class="am">ARCHIVIST'S NOTE, 2024.09:</span>
+<span class="am">CAPTAIN'S NOTE:</span>
 
-Three years in. Two cells operational.
-Five missions completed. One ongoing.
-One asset compromised — see ops/assets.
+One time. As a child.
+I touched the sky.
+No more.
 
-The system works. Whether that is
-reassuring depends entirely on who
-is asking.
+I don't want to anymore.
+Take me home.
+please.
 
 <span class="cmt">// ARCHIVE SEALED: 2024.09.01</span>`
     },
