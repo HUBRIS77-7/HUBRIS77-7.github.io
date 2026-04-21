@@ -40,7 +40,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 6vw 6vw 10vw;
+      padding: 1.5vw 6vw 10vw;
       gap: 8vh;
     }
 
@@ -57,11 +57,13 @@
       font-family: 'Cormorant Garamond', serif;
       font-weight: 700;
       font-style: normal;
-      font-size: clamp(2.8rem, 7.5vw, 8.5rem);
+      font-size: clamp(3.6rem, 11vw, 12rem);
       color: var(--fg);
-      letter-spacing: -0.01em;
+      letter-spacing: -0.015em;
+      line-height: 0.95;
       display: block;
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .hero-line span.comma { color: var(--dim); }
@@ -150,7 +152,7 @@
 
   <!-- HERO -->
   <header class="hero">
-    <span class="hero-line">Stop your crying<span class="comma">,</span> baby<span class="comma">.</span></span>
+    <span class="hero-line">Stop your crying<span class="comma">,</span>&nbsp;baby<span class="comma">.</span></span>
     <span class="hero-line">It'll be Alright</span>
   </header>
 
