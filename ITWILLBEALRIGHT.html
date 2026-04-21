@@ -24,7 +24,6 @@
       overflow-x: hidden;
     }
 
-    /* subtle grain overlay */
     body::before {
       content: '';
       position: fixed;
@@ -44,7 +43,6 @@
       gap: 8vh;
     }
 
-    /* ── HERO TEXT ─────────────────────────────────────────── */
     .hero {
       width: 100%;
       text-align: left;
@@ -57,19 +55,18 @@
       font-family: 'Cormorant Garamond', serif;
       font-weight: 700;
       font-style: normal;
-      font-size: clamp(2.2rem, 9vw, 12rem); /* Adjusted min-size for mobile fit */
+      font-size: clamp(2.2rem, 9vw, 12rem);
       color: var(--fg);
       letter-spacing: -0.015em;
       line-height: 1.1;
       display: block;
-      white-space: nowrap; /* Forces text to stay on one line */
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: clip;
     }
 
     .hero-line span.comma { color: var(--dim); }
 
-    /* ── HEARTBEAT SECTION ─────────────────────────────────── */
     .monitor-section {
       width: 100%;
       display: flex;
@@ -177,13 +174,14 @@
   // ── DATE CONSTANTS ──────────────────────────────────────────
   const FLATLINE_DATE   = new Date('2026-04-30T00:00:00');
   const TRIANGLE_END    = new Date('2026-04-25T00:00:00');
+  
+  // To make "Today" the left side, we set the start to April 21st (or the current moment)
   const TRIANGLE_START  = new Date('2026-04-21T00:00:00');
 
   // ── HEARTBEAT CANVAS ────────────────────────────────────────
   const canvas = document.getElementById('heartCanvas');
   const ctx    = canvas.getContext('2d');
   let offset   = 0;
-  let animId;
 
   function resizeCanvas() {
     canvas.width  = canvas.offsetWidth;
@@ -210,13 +208,12 @@
     return pts;
   }
 
-  function drawHeart(ts) {
+  function drawHeart() {
     const W = canvas.width, H = canvas.height;
     const mid = H * 0.55;
     const isFlat = new Date() >= FLATLINE_DATE;
 
     ctx.clearRect(0, 0, W, H);
-
     for (let y = 0; y < H; y += 3) {
       ctx.fillStyle = 'rgba(0,0,0,0.12)';
       ctx.fillRect(0, y, W, 1);
@@ -224,7 +221,6 @@
 
     const cycleW = 160; 
     const speed  = 1.2; 
-
     if (!isFlat) offset = (offset + speed) % cycleW;
 
     ctx.save();
@@ -234,7 +230,6 @@
     ctx.shadowBlur  = isFlat ? 0 : 8;
     ctx.lineJoin    = 'round';
     ctx.lineCap     = 'round';
-
     ctx.beginPath();
 
     if (isFlat) {
@@ -253,7 +248,6 @@
         x += cycleW;
       }
     }
-
     ctx.stroke();
     ctx.restore();
 
@@ -262,29 +256,32 @@
     ctx.textAlign = 'right';
     ctx.fillText(isFlat ? 'FLATLINE' : 'LIVE', W - 10, 16);
 
-    animId = requestAnimationFrame(drawHeart);
+    requestAnimationFrame(drawHeart);
   }
-
   requestAnimationFrame(drawHeart);
 
-  // ── TRIANGLE POSITION ───────────────────────────────────────
+  // ── TRIANGLE POSITION (FIXED LOGIC) ──────────────────────────
   function updateTriangle() {
     const now      = new Date();
     const total    = TRIANGLE_END - TRIANGLE_START;
     const elapsed  = now - TRIANGLE_START;
+    
+    // Progress 0 (left) to 1 (right)
     const progress = Math.min(1, Math.max(0, elapsed / total));
 
     const track    = document.querySelector('.track');
     const W        = track.offsetWidth;
+    
+    // Calculate position: Start at leftPx (12), move toward rightPx (W-12)
     const leftPx   = 12;
     const rightPx  = W - 12;
-    const xPos     = rightPx - (rightPx - leftPx) * progress;
+    const xPos     = leftPx + (rightPx - leftPx) * progress;
 
     document.getElementById('triangleMarker').style.left = xPos + 'px';
   }
 
   updateTriangle();
-  setInterval(updateTriangle, 60000);
+  setInterval(updateTriangle, 1000); // Updated to 1s for smoother "live" movement
   window.addEventListener('resize', updateTriangle);
 </script>
 </body>
