@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ΗΤΑ TERMINAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:       #06070d;
+  --surface:  #090b16;
+  --surface2: #0c0f1e;
+  --border:   #0d2030;
+  --cyan:     #00e5ff;
+  --green:    #00ff8c;
+  --amber:    #ffaa00;
+  --red:      #ff3355;
+  --text:     #7aa4b8;
+  --textdim:  #2a4a5a;
+  --texthi:   #c8e0ee;
+  --mono:     'Share Tech Mono',monospace;
+}
+
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);
+  font-family:var(--mono);overflow:hidden}
+
+/* ─────────── SQUARES OVERLAY ─────────── */
+#sq-overlay{position:fixed;inset:0;z-index:200;pointer-events:none}
+.sq{position:absolute;will-change:transform,opacity;
+  transition:transform .18s ease-in,opacity .18s ease-in}
+.sq.gone{transform:scale(0) rotate(12deg)!important;opacity:0!important}
+
+/* ─────────── GREEK LETTERS ─────────── */
+#letters{
+  position:fixed;z-index:150;display:flex;gap:.04em;
+  pointer-events:none;
+}
+.gletter{
+  font-family:'Orbitron',sans-serif;font-weight:900;
+  color:transparent;-webkit-text-stroke:3px var(--cyan);
+  text-shadow:0 0 30px rgba(0,229,255,.7),0 0 80px rgba(0,229,255,.3),
+              0 0 140px rgba(0,229,255,.12);
+  line-height:1;
+}
+
+/* ─────────── CONSOLE ─────────── */
+#console{
+  position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transition:opacity .6s ease}
+#console.visible{opacity:1;pointer-events:all}
+
+/* TOP BAR */
+#top-bar{
+  height:52px;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 18px;gap:0;flex-shrink:0}
+.wc{display:flex;align-items:center;gap:7px;margin-right:16px}
+.dot{width:11px;height:11px;border-radius:50%}
+.dr{background:#ff3b30;box-shadow:0 0 6px #ff3b3066}
+.dy{background:#ffcc00;box-shadow:0 0 6px #ffcc0066}
+.dg{background:#34c759;box-shadow:0 0 6px #34c75966}
+#tbar-spacer{width:72px} /* room for floating letters */
+#tbar-title{font-size:.62rem;color:var(--textdim);letter-spacing:.18em;margin-right:auto}
+#tbar-clock{font-size:.6rem;color:var(--textdim)}
+
+/* STATUS BAR */
+#status-bar{
+  height:26px;background:var(--bg);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;font-size:.58rem;
+  color:var(--textdim);gap:22px;flex-shrink:0}
+.si b{color:var(--green);font-weight:normal}
+
+/* WORKSPACE */
+#workspace{display:flex;flex:1;overflow:hidden}
+
+/* FILE TREE */
+#tree{
+  width:210px;flex-shrink:0;background:var(--surface);
+  border-right:1px solid var(--border);overflow-y:auto;padding:8px 0}
+#tree::-webkit-scrollbar{width:3px}
+#tree::-webkit-scrollbar-thumb{background:var(--border)}
+.th{padding:4px 14px;font-size:.57rem;color:var(--textdim);
+    letter-spacing:.15em;text-transform:uppercase;margin-bottom:2px}
+.ti{
+  display:flex;align-items:center;padding:5px 0;
+  padding-left:calc(12px + var(--d,0)*13px);
+  font-size:.7rem;cursor:pointer;user-select:none;gap:5px;
+  color:var(--text);transition:background .1s,color .1s}
+.ti:hover{background:rgba(0,229,255,.04);color:var(--texthi)}
+.ti.act{background:rgba(0,229,255,.09);color:var(--cyan)}
+.ti.lck{color:var(--textdim);cursor:not-allowed}
+.ti.lck:hover{background:rgba(255,51,85,.04);color:var(--red)}
+.ico{font-style:normal;font-size:.68rem;flex-shrink:0}
+.icf{color:var(--amber)}
+.icfl{color:var(--textdim)}
+
+/* VIEWER */
+#viewer{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+#viewer::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:5;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,
+    rgba(0,0,0,.07) 3px,rgba(0,0,0,.07) 4px)}
+#viewer::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:4;
+  background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,0,.55) 100%)}
+#vh{
+  padding:7px 16px;border-bottom:1px solid var(--border);
+  font-size:.6rem;color:var(--textdim);display:flex;align-items:center;
+  gap:8px;background:rgba(9,11,22,.9);flex-shrink:0;z-index:6;position:relative}
+#vpath{color:var(--amber)}
+#vc{
+  flex:1;overflow-y:auto;padding:22px 28px;font-size:.76rem;
+  line-height:1.75;color:var(--text);position:relative;z-index:6}
+#vc::-webkit-scrollbar{width:3px}
+#vc::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* FILE CONTENT SYNTAX */
+.fc{white-space:pre-wrap;word-break:break-word}
+.fc .kw{color:var(--cyan)}
+.fc .val{color:var(--green)}
+.fc .cmt{color:var(--textdim)}
+.fc .er{color:var(--red)}
+.fc .am{color:var(--amber)}
+.fc .hd{color:var(--cyan);letter-spacing:.04em}
+.fc .ok{color:var(--green)}
+.fc .br{color:var(--textdim)}
+
+/* CURSOR */
+.cur{display:inline-block;width:7px;height:1em;background:var(--cyan);
+  opacity:.8;vertical-align:text-bottom;animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:.8}50%{opacity:0}}
+
+/* BOTTOM BAR */
+#bot{
+  height:22px;background:var(--surface);border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 14px;
+  font-size:.57rem;color:var(--textdim);gap:18px;flex-shrink:0}
+.bti{display:flex;align-items:center;gap:5px}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 5px var(--green);animation:pls 2s ease-in-out infinite}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* WELCOME BOOT TEXT */
+#boot-lines .bl{display:block;color:var(--textdim);font-size:.72rem;line-height:1.6;
+  opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s}
+#boot-lines .bl.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<div id="sq-overlay"></div>
+
+<div id="letters">
+  <span class="gletter">Η</span>
+  <span class="gletter">Τ</span>
+  <span class="gletter">Α</span>
+</div>
+
+<div id="console">
+  <div id="top-bar">
+    <div class="wc">
+      <div class="dot dr"></div>
+      <div class="dot dy"></div>
+      <div class="dot dg"></div>
+    </div>
+    <div id="tbar-spacer"></div>
+    <span id="tbar-title">// SECURE TERMINAL &nbsp;v2.7.1</span>
+    <span id="tbar-clock"></span>
+  </div>
+
+  <div id="status-bar">
+    <span class="si">CONN: <b>ESTABLISHED</b></span>
+    <span class="si">NODE: <b>ΗΤΑ-PRIMARY</b></span>
+    <span class="si">ENC: <b>AES-256-GCM</b></span>
+    <span class="si">UPTIME: <b id="uptime">00:00:00</b></span>
+  </div>
+
+  <div id="workspace">
+    <div id="tree"><div class="th">// filesystem</div></div>
+    <div id="viewer">
+      <div id="vh">
+        <span>VIEWER</span>
+        <span style="color:var(--border)">│</span>
+        <span id="vpath">— select a file —</span>
+        <span style="margin-left:auto" id="lcount"></span>
+      </div>
+      <div id="vc"><div id="boot-lines"></div></div>
+    </div>
+  </div>
+
+  <div id="bot">
+    <div class="bti"><div class="pulse"></div>LIVE</div>
+    <div class="bti">UTF-8</div>
+    <div class="bti">MONO</div>
+    <div class="bti" id="sel-file">NO FILE SELECTED</div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  FILESYSTEM DATA
+// ══════════════════════════════════════════════════════
+const FS = {
+  'README.md': {
+    content: `<span class="hd">ΗΤΑ SECURE TERMINAL</span>
+<span class="br">════════════════════════════════════════</span>
+
+<span class="kw">CLASSIFICATION:</span> <span class="er">RESTRICTED</span>
+<span class="kw">VERSION:</span>        <span class="val">2.7.1-stable</span>
+<span class="kw">COMPILED:</span>       <span class="val">2024.11.03  04:12:09 UTC</span>
+<span class="kw">OPERATOR:</span>       <span class="val">[REDACTED]</span>
+
+<span class="br">────────────────────────────────────────</span>
+
+Welcome to the ΗΤΑ terminal interface.
+
+This system provides encrypted access to operational
+files, mission logs, and archived intelligence.
+All sessions are logged and monitored in real time.
+
+<span class="am">NOTICE:</span> Unauthorized access to restricted nodes
+constitutes a breach of protocol. Violators will
+be flagged, traced, and escalated to CONTROL.
+
+<span class="br">────────────────────────────────────────</span>
+
+<span class="kw">QUICK INDEX</span>
+
+  <span class="val">system/config.cfg</span>    — Runtime configuration
+  <span class="val">system/boot.log</span>      — Last boot sequence log
+  <span class="val">ops/mission_001.txt</span>  — First contact brief
+  <span class="val">ops/mission_002.txt</span>  — Current operational status
+  <span class="val">ops/assets.txt</span>       — Known asset registry
+  <span class="val">archive/origin.txt</span>   — Project origin record
+  <span class="val">archive/redacted.bin</span> — <span class="er">LOCKED  /  OMEGA-1 CLEARANCE</span>
+
+<span class="br">────────────────────────────────────────</span>
+<span class="cmt">// END OF FILE</span>`
+  },
+  __system: {
+    __folder: true,
+    'config.cfg': {
+      content: `<span class="cmt"># ΗΤΑ Runtime Configuration</span>
+<span class="cmt"># Last modified: 2024.11.02  23:47:11</span>
+<span class="cmt"># DO NOT EDIT WHILE SYSTEM IS ACTIVE</span>
+
+<span class="kw">[network]</span>
+  host          = <span class="val">0.0.0.0</span>
+  port          = <span class="val">7741</span>
+  tls           = <span class="val">true</span>
+  tls_cert      = <span class="val">/etc/eta/cert.pem</span>
+  tls_key       = <span class="val">/etc/eta/priv.pem</span>
+  max_conn      = <span class="val">4</span>
+  timeout_ms    = <span class="val">30000</span>
+
+<span class="kw">[auth]</span>
+  mode          = <span class="val">token+otp</span>
+  token_ttl     = <span class="val">3600</span>
+  otp_window    = <span class="val">2</span>
+  fail_limit    = <span class="val">3</span>
+  lockout_s     = <span class="val">900</span>
+
+<span class="kw">[storage]</span>
+  root          = <span class="val">/mnt/eta/fs</span>
+  enc_algo      = <span class="val">AES-256-GCM</span>
+  key_derive    = <span class="val">argon2id</span>
+  wipe_on_fail  = <span class="val">false</span>  <span class="cmt"># operator override</span>
+
+<span class="kw">[logging]</span>
+  level         = <span class="val">INFO</span>
+  dest          = <span class="val">/var/log/eta/sys.log</span>
+  rotate_mb     = <span class="val">50</span>
+  keep_days     = <span class="val">7</span>
+  redact_ip     = <span class="val">true</span>
+
+<span class="kw">[ops]</span>
+  active_cell   = <span class="val">HELIOS</span>
+  standby_cell  = <span class="val">NOCTUA</span>
+  comm_interval = <span class="val">900</span>  <span class="cmt"># seconds</span>
+  dead_drop     = <span class="val">enabled</span>`
+    },
+    'boot.log': {
+      content: `<span class="br">──────────────────────────────────────────────────</span>
+<span class="cmt"> ΗΤΑ-TERMINAL  /  BOOT SEQUENCE LOG</span>
+<span class="cmt"> 2024.11.03  04:11:58 UTC</span>
+<span class="br">──────────────────────────────────────────────────</span>
+
+<span class="val">[04:11:58.001]</span> <span class="kw">BIOS</span>    Power-on self-test ............. <span class="ok">OK</span>
+<span class="val">[04:11:58.043]</span> <span class="kw">BIOS</span>    Memory check (16 GiB) .......... <span class="ok">PASS</span>
+<span class="val">[04:11:58.102]</span> <span class="kw">BOOT</span>    Loading kernel image ........... <span class="ok">OK</span>
+<span class="val">[04:11:58.881]</span> <span class="kw">KERNEL</span>  Unpacking initrd ............... <span class="ok">OK</span>
+<span class="val">[04:11:59.230]</span> <span class="kw">KERNEL</span>  Mounting root filesystem ........ <span class="ok">OK</span>
+<span class="val">[04:11:59.441]</span> <span class="kw">NET</span>     Bringing up lo ................. <span class="ok">OK</span>
+<span class="val">[04:11:59.502]</span> <span class="kw">NET</span>     Bringing up eth0 ............... <span class="ok">OK</span>
+<span class="val">[04:11:59.503]</span> <span class="kw">NET</span>     Assigned <span class="val">10.44.7.21</span>
+<span class="val">[04:11:59.891]</span> <span class="kw">CRYPTO</span>  Loading keys from TPM .......... <span class="ok">OK</span>
+<span class="val">[04:12:00.003]</span> <span class="kw">CRYPTO</span>  Deriving session key ........... <span class="ok">OK</span>
+<span class="val">[04:12:00.104]</span> <span class="kw">FS</span>      Mounting encrypted volume ....... <span class="ok">OK</span>
+<span class="val">[04:12:00.412]</span> <span class="kw">DAEMON</span>  Starting eta-core .............. <span class="ok">OK</span>
+<span class="val">[04:12:00.813]</span> <span class="kw">DAEMON</span>  Starting eta-comms ............. <span class="ok">OK</span>
+<span class="val">[04:12:01.001]</span> <span class="kw">DAEMON</span>  Starting eta-monitor ........... <span class="ok">OK</span>
+<span class="val">[04:12:02.500]</span> <span class="kw">AUTH</span>    Waiting for operator token ...
+<span class="val">[04:12:09.017]</span> <span class="kw">AUTH</span>    Token validated ................ <span class="ok">GRANTED</span>
+<span class="val">[04:12:09.018]</span> <span class="kw">SESSION</span> Terminal session opened
+<span class="val">[04:12:09.019]</span>
+<span class="ok">                ─── SYSTEM READY ───</span>`
+    }
+  },
+  __ops: {
+    __folder: true,
+    'mission_001.txt': {
+      content: `<span class="hd">OPERATIONAL BRIEF  —  MISSION 001</span>
+<span class="br">════════════════════════════════════════</span>
+
+<span class="kw">CODENAME:</span>    <span class="val">FIRST LIGHT</span>
+<span class="kw">DATE:</span>        <span class="val">2024.07.14</span>
+<span class="kw">ISSUED BY:</span>   <span class="val">CONTROL</span>
+<span class="kw">CLEARANCE:</span>   <span class="er">SIGMA-3</span>
+<span class="kw">STATUS:</span>      <span class="ok">COMPLETED</span>
+
+<span class="br">────────────────────────────────────────</span>
+<span class="kw">OBJECTIVE</span>
+
+Establish encrypted communication channel
+between nodes HELIOS and NOCTUA. Confirm
+handshake integrity and log session keys
+to secure archive. No direct contact.
+
+<span class="kw">CONSTRAINTS</span>
+
+  — All traffic must route via Tor layer
+  — Session window: max 90 seconds
+  — Abort trigger: three failed pings
+  — No persistent identifiers in transit
+
+<span class="kw">OUTCOME</span>
+
+Channel established at <span class="val">22:07:44 UTC</span>.
+Handshake confirmed. Keys archived.
+Zero anomalies detected.
+
+<span class="br">────────────────────────────────────────</span>
+<span class="am">OPERATOR NOTE:</span>
+Latency on first attempt was 340ms —
+above threshold. Second attempt nominal
+at 112ms. Both logged for review.
+
+<span class="cmt">// SIGNED: HELIOS-OPS  /  2024.07.14</span>`
+    },
+    'mission_002.txt': {
+      content: `<span class="hd">OPERATIONAL BRIEF  —  MISSION 002</span>
+<span class="br">════════════════════════════════════════</span>
+
+<span class="kw">CODENAME:</span>    <span class="val">PALE FIRE</span>
+<span class="kw">DATE:</span>        <span class="val">2024.10.29</span>
+<span class="kw">ISSUED BY:</span>   <span class="val">CONTROL</span>
+<span class="kw">CLEARANCE:</span>   <span class="er">SIGMA-3</span>
+<span class="kw">STATUS:</span>      <span class="am">IN PROGRESS</span>
+
+<span class="br">────────────────────────────────────────</span>
+<span class="kw">OBJECTIVE</span>
+
+Intercept and decode transmission series
+from frequency cluster 441.7 – 443.1 MHz.
+Cross-reference decoded content against
+pattern library VESPER-9.
+
+<span class="kw">PRIORITY TARGETS</span>
+
+  <span class="er">■</span> Signal batch <span class="val">TX-0041</span> through <span class="val">TX-0058</span>
+  <span class="er">■</span> Identify embedded time markers
+  <span class="er">■</span> Flag any use of codeword: <span class="er">IRON MERIDIAN</span>
+
+<span class="kw">CURRENT PROGRESS</span>
+
+  <span class="val">TX-0041</span>  decoded .............. <span class="ok">✓</span>
+  <span class="val">TX-0042</span>  decoded .............. <span class="ok">✓</span>
+  <span class="val">TX-0043</span>  decoded .............. <span class="ok">✓</span>
+  <span class="val">TX-0044</span>  decoded .............. <span class="ok">✓</span>
+  <span class="val">TX-0045</span>  <span class="am">decoding ...</span>
+  <span class="val">TX-0046</span>  <span class="cmt">pending</span>
+  <span class="val">TX-0047</span>  <span class="cmt">pending</span>
+  <span class="cmt">  …        …</span>
+
+<span class="kw">ANOMALY DETECTED</span>
+
+  <span class="er">WARNING:</span> TX-0044 contains unexpected
+  structure divergence from known patterns.
+  Flagged for manual review. Standby.
+
+<span class="cmt">// LAST UPDATED: 2024.10.31  19:55 UTC</span>`
+    },
+    'assets.txt': {
+      content: `<span class="hd">ASSET REGISTRY  —  ACTIVE</span>
+<span class="br">════════════════════════════════════════</span>
+
+<span class="kw">CELL:</span>  <span class="val">HELIOS</span>
+<span class="br">────────────────────────────────────────</span>
+
+  <span class="val">ASSET-01</span>  codename: <span class="kw">CORVUS</span>
+            role:     signals intelligence
+            status:   <span class="ok">ACTIVE</span>
+            contact:  dead drop  /  channel B
+
+  <span class="val">ASSET-02</span>  codename: <span class="kw">SABLE</span>
+            role:     human intelligence
+            status:   <span class="am">DORMANT</span>
+            contact:  await reactivation code
+
+  <span class="val">ASSET-03</span>  codename: <span class="kw">LYNX</span>
+            role:     technical support
+            status:   <span class="ok">ACTIVE</span>
+            contact:  direct  /  encrypted
+
+<span class="kw">CELL:</span>  <span class="val">NOCTUA</span>
+<span class="br">────────────────────────────────────────</span>
+
+  <span class="val">ASSET-04</span>  codename: <span class="kw">HARROW</span>
+            role:     logistics
+            status:   <span class="ok">ACTIVE</span>
+            contact:  channel D  /  72h cycle
+
+  <span class="val">ASSET-05</span>  codename: <span class="kw">VESPER</span>
+            role:     analysis
+            status:   <span class="er">COMPROMISED</span>
+            contact:  <span class="er">SUSPENDED  —  SEE ARCHIVE</span>
+
+<span class="br">────────────────────────────────────────</span>
+<span class="cmt">// REGISTRY v14  /  2024.10.30</span>`
+    }
+  },
+  __archive: {
+    __folder: true,
+    'origin.txt': {
+      content: `<span class="hd">PROJECT ORIGIN  —  RESTRICTED</span>
+<span class="br">════════════════════════════════════════</span>
+
+<span class="kw">PROJECT:</span>   <span class="val">ΗΤΑ  (Eta-Tau-Alpha)</span>
+<span class="kw">FOUNDED:</span>  <span class="val">2021.03.01</span>
+<span class="kw">ORIGIN:</span>   <span class="cmt">[REDACTED]</span>
+
+<span class="br">────────────────────────────────────────</span>
+
+ΗΤΑ was conceived as a resilient,
+operator-agnostic intelligence framework
+designed to function entirely outside
+conventional oversight structures.
+
+The name derives from the first three
+letters of the Greek alphabet used as
+operational designators at project
+inception. Their specific meaning is
+known only to the founding operators.
+
+<span class="kw">DESIGN PRINCIPLES</span>
+
+  <span class="val">1.</span> Minimal surface — no unnecessary
+     infrastructure, no persistent identity.
+
+  <span class="val">2.</span> Compartmentalization — no single
+     node holds a complete operational picture.
+
+  <span class="val">3.</span> Resilience — the loss of any cell
+     does not compromise the whole.
+
+  <span class="val">4.</span> Deniability — by design.
+
+<span class="br">────────────────────────────────────────</span>
+
+<span class="am">ARCHIVIST'S NOTE, 2024.09:</span>
+
+Three years in. Two cells operational.
+Five missions completed. One ongoing.
+One asset compromised — see ops/assets.
+
+The system works. Whether that is
+reassuring depends entirely on who
+is asking.
+
+<span class="cmt">// ARCHIVE SEALED: 2024.09.01</span>`
+    },
+    'redacted.bin': { locked: true, content: '' }
+  }
+};
+
+// ══════════════════════════════════════════════════════
+//  SQUARES
+// ══════════════════════════════════════════════════════
+function initSquares() {
+  const overlay = document.getElementById('sq-overlay');
+  const SZ = 58;
+  const cols = Math.ceil(window.innerWidth / SZ) + 1;
+  const rows = Math.ceil(window.innerHeight / SZ) + 1;
+  const hues = [0,15,32,55,80,120,160,185,200,220,245,270,300,330];
+  const squares = [];
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const el = document.createElement('div');
+      el.className = 'sq';
+      const h = hues[Math.floor(Math.random() * hues.length)] + (Math.random()*16-8);
+      const s = 72 + Math.random()*28;
+      const l = 42 + Math.random()*22;
+      el.style.cssText =
+        `left:${c*SZ}px;top:${r*SZ}px;width:${SZ+1}px;height:${SZ+1}px;` +
+        `background:hsl(${h},${s}%,${l}%)`;
+      overlay.appendChild(el);
+      squares.push(el);
+    }
+  }
+
+  // Fisher-Yates shuffle
+  for (let i = squares.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [squares[i], squares[j]] = [squares[j], squares[i]];
+  }
+  return squares;
+}
+
+function runSquares(squares) {
+  const IV = 4.5; // ms per square
+  squares.forEach((sq, i) =>
+    setTimeout(() => sq.classList.add('gone'), i * IV));
+
+  // After all gone → hide overlay
+  setTimeout(() => {
+    document.getElementById('sq-overlay').remove();
+  }, squares.length * IV + 300);
+
+  // Move letters when last squares going
+  setTimeout(() => {
+    moveLetters();
+  }, squares.length * IV - 80);
+}
+
+// ══════════════════════════════════════════════════════
+//  LETTERS
+// ══════════════════════════════════════════════════════
+function placeLettersCentered() {
+  const el = document.getElementById('letters');
+  const fs = Math.min(window.innerWidth * 0.21, window.innerHeight * 0.33);
+  el.style.cssText =
+    `position:fixed;z-index:150;display:flex;gap:.04em;pointer-events:none;` +
+    `font-size:${fs}px;top:50%;left:50%;transform:translate(-50%,-50%)`;
+  return fs;
+}
+
+function moveLetters() {
+  const el = document.getElementById('letters');
+  const rect = el.getBoundingClientRect();
+
+  // Snap off transform centering
+  el.style.transition = 'none';
+  el.style.transform = 'none';
+  el.style.top = rect.top + 'px';
+  el.style.left = rect.left + 'px';
+
+  el.getBoundingClientRect(); // reflow
+
+  // Animate to top-left
+  el.style.transition =
+    'top .78s cubic-bezier(.4,0,.2,1),' +
+    'left .78s cubic-bezier(.4,0,.2,1),' +
+    'font-size .78s cubic-bezier(.4,0,.2,1),' +
+    'opacity .5s ease';
+  el.style.top  = '14px';
+  el.style.left = '72px';
+  el.style.fontSize = '20px';
+
+  setTimeout(showConsole, 820);
+}
+
+// ══════════════════════════════════════════════════════
+//  CONSOLE REVEAL
+// ══════════════════════════════════════════════════════
+function showConsole() {
+  const con = document.getElementById('console');
+  con.classList.add('visible');
+  // After console fully in, fade floating letters (console top-bar covers them)
+  setTimeout(() => {
+    const el = document.getElementById('letters');
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 600);
+  }, 500);
+  animateBootLines();
+}
+
+function animateBootLines() {
+  const container = document.getElementById('boot-lines');
+  const lines = [
+    `<span class="cmt">ΗΤΑ-TERMINAL  /  SESSION INIT</span>`,
+    `<span class="br">────────────────────────────────────────</span>`,
+    `<span class="kw">session_id</span>   <span class="val">${rhex(24)}</span>`,
+    `<span class="kw">operator</span>     <span class="val">AUTHENTICATED</span>`,
+    `<span class="kw">clearance</span>    <span class="er">SIGMA-3</span>`,
+    `<span class="kw">node</span>         <span class="val">ΗΤΑ-PRIMARY  /  10.44.7.21</span>`,
+    `<span class="kw">enc</span>          <span class="val">AES-256-GCM  /  active</span>`,
+    `<span class="br">────────────────────────────────────────</span>`,
+    `<span class="cmt">Filesystem mounted. ${Object.keys(FS).length + 6} objects indexed.</span>`,
+    `<span class="cmt">Select a file from the tree to begin.</span>`,
+    `<span class="ok">READY</span> <span class="cur"></span>`,
+  ];
+
+  lines.forEach((html, i) => {
+    const span = document.createElement('span');
+    span.className = 'bl';
+    span.innerHTML = html;
+    container.appendChild(span);
+    setTimeout(() => span.classList.add('show'), i * 90);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  FILE TREE
+// ══════════════════════════════════════════════════════
+function buildTree() {
+  const treeEl = document.getElementById('tree');
+
+  function makeItem(label, depth, opts = {}) {
+    const div = document.createElement('div');
+    div.className = 'ti' + (opts.cls ? ' ' + opts.cls : '');
+    div.style.setProperty('--d', depth);
+    div.innerHTML = `<span class="ico ${opts.iconClass||''}">${opts.icon||'·'}</span><span>${label}</span>${opts.suffix||''}`;
+    return div;
+  }
+
+  // Root
+  const root = makeItem('ΗΤΑ://', 0, {icon:'◈', iconClass:'', cls:''});
+  root.style.color = 'var(--cyan)';
+  root.querySelector('.ico').style.color = 'var(--cyan)';
+  treeEl.appendChild(root);
+
+  function addFile(name, nodeData, depth, path) {
+    if (nodeData.locked) {
+      const item = makeItem(name, depth, {
+        icon:'⊘', iconClass:'',
+        suffix:`<span style="font-size:.58rem;color:var(--er);margin-left:6px;color:var(--red)">[LOCKED]</span>`,
+        cls:'lck'
+      });
+      item.querySelector('.ico').style.color = 'var(--red)';
+      item.addEventListener('click', () => showLocked(name, path));
+      treeEl.appendChild(item);
+    } else {
+      const item = makeItem(name, depth, {icon:'·', iconClass:'icfl'});
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.ti.act').forEach(x => x.classList.remove('act'));
+        item.classList.add('act');
+        document.getElementById('sel-file').textContent = path;
+        showFile(name, nodeData, path);
+      });
+      treeEl.appendChild(item);
+    }
+  }
+
+  function addFolder(key, data, depth) {
+    const name = key.replace('__','');
+    const toggle = makeItem(name + '/', depth, {icon:'▾', iconClass:'icf'});
+    treeEl.appendChild(toggle);
+    const children = [];
+
+    for (const [k, v] of Object.entries(data)) {
+      if (k === '__folder') continue;
+      if (v.__folder) {
+        addFolder(k, v, depth + 1);
+      } else {
+        const path = name + '/' + k;
+        addFile(k, v, depth + 1, path);
+      }
+    }
+
+    let open = true;
+    toggle.addEventListener('click', () => {
+      open = !open;
+      toggle.querySelector('.ico').textContent = open ? '▾' : '▸';
+    });
+  }
+
+  // Top-level items
+  for (const [k, v] of Object.entries(FS)) {
+    if (v.__folder) {
+      addFolder(k, v, 1);
+    } else {
+      addFile(k, v, 1, k);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  VIEWER
+// ══════════════════════════════════════════════════════
+function showFile(name, node, path) {
+  const vc = document.getElementById('vc');
+  const vpath = document.getElementById('vpath');
+  const lcount = document.getElementById('lcount');
+
+  vpath.textContent = 'ΗΤΑ:/' + path;
+  const lines = node.content.replace(/<[^>]+>/g,'').split('\n').length;
+  lcount.textContent = lines + ' ln';
+
+  const div = document.createElement('div');
+  div.className = 'fc';
+  div.style.opacity = '0';
+  div.style.transition = 'opacity .28s ease';
+  div.innerHTML = node.content + '\n\n<span class="cur"></span>';
+
+  vc.innerHTML = '';
+  vc.appendChild(div);
+  vc.scrollTop = 0;
+  requestAnimationFrame(() => requestAnimationFrame(() => div.style.opacity = '1'));
+}
+
+function showLocked(name, path) {
+  const vc = document.getElementById('vc');
+  document.getElementById('vpath').textContent = 'ΗΤΑ:/' + path;
+  document.getElementById('lcount').textContent = '';
+  document.getElementById('sel-file').textContent = path;
+  vc.innerHTML = `<div class="fc">
+<span class="er">ACCESS DENIED</span>
+<span class="br">════════════════════════════════</span>
+
+File:     <span class="val">${name}</span>
+Status:   <span class="er">LOCKED  /  ENCRYPTED</span>
+
+This file requires additional clearance
+beyond your current authorization level.
+
+<span class="am">Required clearance:  OMEGA-1</span>
+<span class="am">Your clearance:      SIGMA-3</span>
+
+Contact CONTROL to request elevated access.
+
+<span class="cmt">// ACCESS ATTEMPT LOGGED</span>
+<span class="cur"></span>
+</div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════════════════
+function rhex(n) {
+  return Array.from({length:n},()=>Math.floor(Math.random()*16).toString(16)).join('');
+}
+
+const t0 = Date.now();
+function tick() {
+  const now = new Date();
+  const iso = now.toISOString().replace('T',' ').slice(0,19) + ' UTC';
+  document.getElementById('tbar-clock').textContent = iso;
+
+  const s = Math.floor((Date.now()-t0)/1000);
+  const hh = String(Math.floor(s/3600)).padStart(2,'0');
+  const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  const up = document.getElementById('uptime');
+  if (up) up.textContent = `${hh}:${mm}:${ss}`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  buildTree();
+  tick();
+  setInterval(tick, 1000);
+
+  placeLettersCentered();
+  const squares = initSquares();
+  setTimeout(() => runSquares(squares), 250);
+});
+</script>
+</body>
+</html>
