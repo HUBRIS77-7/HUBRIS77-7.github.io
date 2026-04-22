@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERMINAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber: #C8850A;
+    --amber-bright: #F2A430;
+    --amber-glow: #FFD080;
+    --amber-dim: #6B4A10;
+    --amber-faint: #2A1C06;
+    --bg: #060402;
+    --bg-surface: #0B0804;
+    --border: #3D2808;
+    --border-active: #8B5E18;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--amber-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* CRT vignette + scanlines */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+    z-index: 999;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.12) 3px,
+      rgba(0,0,0,0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 998;
+  }
+
+  /* ── BOOT SCREEN ── */
+  #boot {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    transition: opacity 0.8s ease;
+    gap: 4px;
+  }
+  #boot.fade-out { opacity: 0; pointer-events: none; }
+  .boot-line {
+    font-size: 13px;
+    color: var(--amber-dim);
+    opacity: 0;
+    transition: opacity 0.01s;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+  }
+  .boot-line.show { opacity: 1; }
+  .boot-logo {
+    font-family: 'VT323', monospace;
+    font-size: 52px;
+    color: var(--amber-bright);
+    margin-bottom: 24px;
+    letter-spacing: 8px;
+    text-shadow: 0 0 20px rgba(242,164,48,0.3);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  #app {
+    width: min(960px, 96vw);
+    height: min(580px, 92vh);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 16px;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    padding-top: 10px;
+  }
+  #app.visible { opacity: 1; }
+
+  /* ── BOX COMPONENT ── */
+  .pane {
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    position: relative;
+    padding: 26px 22px 20px;
+    overflow: visible;
+  }
+
+  .pane::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 0;
+    left: 14px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--amber-dim);
+    background: var(--bg-surface);
+    padding: 0 8px;
+    text-transform: uppercase;
+    transform: translateY(-55%);
+  }
+
+  /* corner accents */
+  .pane::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 10px; height: 10px;
+    border-bottom: 1px solid var(--border-active);
+    border-right: 1px solid var(--border-active);
+  }
+
+  /* ── QUESTION PANE ── */
+  #question-pane {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .q-meta {
+    font-size: 10px;
+    color: var(--amber-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  #question-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--amber-bright);
+    min-height: 52px;
+  }
+
+  /* blinking cursor */
+  .cursor {
+    display: inline-block;
+    width: 9px;
+    height: 16px;
+    background: var(--amber-bright);
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink 0.9s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── ANSWER PANE ── */
+  #answer-pane {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  #answer-label {
+    font-size: 10px;
+    color: var(--amber-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  #answer-text {
+    font-size: 20px;
+    color: var(--amber-glow);
+    text-align: right;
+    line-height: 1.4;
+    text-shadow: 0 0 12px rgba(255,208,128,0.25);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    max-width: 100%;
+    word-break: break-word;
+  }
+  #answer-text.visible { opacity: 1; transform: translateY(0); }
+
+  #answer-index {
+    font-size: 11px;
+    color: var(--amber-dim);
+    letter-spacing: 1px;
+  }
+
+  /* ── CHOICES PANE ── */
+  #choices-pane {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  #choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  #choices-container.hiding {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .choice {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--amber);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    padding: 11px 18px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.12s, background 0.12s, color 0.12s;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.3px;
+    line-height: 1.4;
+  }
+
+  .choice::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--amber-bright);
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+
+  .choice:hover {
+    border-color: var(--border-active);
+    background: rgba(200,133,10,0.06);
+    color: var(--amber-glow);
+  }
+  .choice:hover::before { opacity: 1; }
+  .choice:active { background: rgba(200,133,10,0.12); }
+
+  .choice-key {
+    color: var(--amber-dim);
+    font-size: 11px;
+    letter-spacing: 1px;
+    min-width: 24px;
+    flex-shrink: 0;
+  }
+
+  .choice.selected {
+    border-color: var(--amber-bright);
+    background: rgba(242,164,48,0.1);
+    color: var(--amber-glow);
+  }
+  .choice.selected::before { opacity: 1; }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed;
+    bottom: 0; left: 0;
+    height: 2px;
+    background: var(--amber-dim);
+    transition: width 0.5s ease;
+    z-index: 200;
+  }
+
+  /* ── DONE SCREEN ── */
+  #done-screen {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    text-align: center;
+  }
+  #done-screen.show { display: flex; }
+  .done-title {
+    font-family: 'VT323', monospace;
+    font-size: 48px;
+    color: var(--amber-glow);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(255,208,128,0.2);
+  }
+  .done-sub {
+    font-size: 13px;
+    color: var(--amber-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .done-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    max-width: 500px;
+    width: 100%;
+  }
+  .done-row {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--amber);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 0;
+  }
+  .done-row-q { color: var(--amber-dim); flex: 1; text-align: left; }
+  .done-row-a { color: var(--amber-glow); text-align: right; flex: 1; }
+
+  /* ── ID CODE BLOCK ── */
+  .id-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .id-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--amber-dim);
+    text-transform: uppercase;
+  }
+  .id-code-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--border-active);
+    padding: 10px 20px;
+    position: relative;
+  }
+  .id-code-row::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 6px; height: 6px;
+    border-top: 1px solid var(--amber-bright);
+    border-left: 1px solid var(--amber-bright);
+  }
+  .id-code-row::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 6px; height: 6px;
+    border-bottom: 1px solid var(--amber-bright);
+    border-right: 1px solid var(--amber-bright);
+  }
+  #id-code-value {
+    font-family: 'VT323', monospace;
+    font-size: 32px;
+    color: var(--amber-glow);
+    letter-spacing: 6px;
+    text-shadow: 0 0 16px rgba(255,208,128,0.3);
+  }
+  #copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--amber-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  #copy-btn:hover { border-color: var(--border-active); color: var(--amber); }
+  #copy-btn.copied { color: var(--amber-glow); border-color: var(--amber-bright); }
+
+  #restart-btn {
+    margin-top: 4px;
+    background: transparent;
+    border: 1px solid var(--border-active);
+    color: var(--amber);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  #restart-btn:hover {
+    background: rgba(200,133,10,0.1);
+    color: var(--amber-glow);
+    border-color: var(--amber-bright);
+  }
+
+  /* flicker animation for panes on load */
+  @keyframes flicker-in {
+    0%   { opacity: 0; }
+    10%  { opacity: 0.8; }
+    12%  { opacity: 0.3; }
+    14%  { opacity: 0.9; }
+    100% { opacity: 1; }
+  }
+  .pane { animation: flicker-in 0.5s ease both; }
+  #question-pane { animation-delay: 0.05s; }
+  #answer-pane   { animation-delay: 0.15s; }
+  #choices-pane  { animation-delay: 0.25s; }
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot">
+  <div class="boot-logo">▽</div>
+  <div class="boot-line" id="bl0">CONTAINMENT ENVIRONENT READY ................ OK</div>
+  <div class="boot-line" id="bl1">LOADING QUESTIONNAIRE ........ OK</div>
+  <div class="boot-line" id="bl2">INITIALIZING INTERFACE ....... OK</div>
+  <div class="boot-line" id="bl3">PRESS ANY KEY TO CONTINUE _</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- Q pane -->
+  <div class="pane" id="question-pane" data-label="QUERY">
+    <div class="q-meta">
+      <span id="q-num">Q.01</span>
+      <span id="q-of">of 06</span>
+    </div>
+    <div id="question-text"><span class="cursor"></span></div>
+  </div>
+
+  <!-- Answer pane -->
+  <div class="pane" id="answer-pane" data-label="LOGGED">
+    <div id="answer-label">AWAITING INPUT</div>
+    <div id="answer-text"></div>
+    <div id="answer-index"></div>
+  </div>
+
+  <!-- Choices pane -->
+  <div class="pane" id="choices-pane" data-label="OPTIONS">
+    <div id="choices-container"></div>
+    <div id="done-screen">
+      <div class="done-title">SESSION COMPLETE</div>
+      <div class="done-sub">Responses logged</div>
+      <div class="done-summary" id="done-summary"></div>
+      <div class="id-block">
+        <div class="id-label">Assigned ID Code</div>
+        <div class="id-code-row">
+          <span id="id-code-value">--------</span>
+          <button id="copy-btn" onclick="copyCode()">COPY</button>
+        </div>
+      </div>
+      <button id="restart-btn" onclick="restartQuiz()">[ RESTART SESSION ]</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="progress-bar"></div>
+
+<script>
+const questions = [
+  {
+    q: "Describe your surroundings.",
+    opts: ["Hot, humid. Uncomfortable. Let me leave.", "Cold and Vapid. Why have you put me here?", "I am nowhere, yet everywhere. Incomprehensible.", "A 2000s high school."]
+  },
+  {
+    q: "3 people and 1 object are hanging off the edge of a cliff. Your best-friend, your significant other, your sense of self, and a mirror. Who do you save?",
+    opts: ["My best friend. Those are rare.", "My significant other. Love is fickle.", "My sense of self. It cannot be regained", "The mirror. It shows my true self"]
+  },
+  {
+    q: "Which choice of the previous question did you consider the object to be?",
+    opts: ["My best friend. Like a toy.", "My significant other. It's what is demanded by society. Ownership", "My sense of self. It is only mine to have", "The fucking mirror dumbass."]
+  },
+  {
+    q: "A fortune teller comes to your door and tells you your future. What would you want it to be?",
+    opts: ["A story of conquest.", "A story of fate.", "A story of loss", "A story of rain", "No story at all"]
+  },
+  {
+    q: "You walk amongst the desert for 17 days, and 17 nights. On the 7th night, you saw a dead man in the sand. On the 14th, you saw a skeleton in the sand. What do you think?",
+    opts: ["I am going in circles. Lost. Forgotten.", "I am going insane. My mind has betrayed me.", "The man has rotten. Picked apart like crows.", "Not unlike me. I must get out of here.]
+  },
+  {
+    q: "If given the choice to save a dying loved one, at great cost to the rest of the world. What would you do?",
+    opts: ["Burden the cost. Nothing is too pricey when it comes to them", "Let them go. Some things should never happen", "Find out. Costs can be changed.", "Fight against the cost. He does not have a price."]
+  }
+];
+
+let current = 0;
+let answers = [];
+let typeTimer = null;
+
+// ── BOOT SEQUENCE ──
+const bootLines = ['bl0','bl1','bl2','bl3'];
+let bi = 0;
+let bootComplete = false;
+
+function showNextBootLine() {
+  if (bi < bootLines.length) {
+    document.getElementById(bootLines[bi]).classList.add('show');
+    bi++;
+    setTimeout(showNextBootLine, 320);
+  } else {
+    bootComplete = true;
+  }
+}
+
+function endBoot() {
+  if (!bootComplete) return;
+  document.getElementById('boot').classList.add('fade-out');
+  setTimeout(() => {
+    document.getElementById('boot').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    loadQuestion(0);
+  }, 800);
+}
+
+document.addEventListener('keydown', endBoot);
+document.addEventListener('click', endBoot);
+setTimeout(showNextBootLine, 400);
+
+// ── TYPEWRITER ──
+function typeText(el, text, cb) {
+  if (typeTimer) clearInterval(typeTimer);
+  el.innerHTML = '<span class="cursor"></span>';
+  let i = 0;
+  typeTimer = setInterval(() => {
+    el.innerHTML = text.slice(0, i) + '<span class="cursor"></span>';
+    i++;
+    if (i > text.length) {
+      clearInterval(typeTimer);
+      el.innerHTML = text;
+      if (cb) cb();
+    }
+  }, 22);
+}
+
+// ── LOAD QUESTION ──
+function loadQuestion(idx) {
+  if (idx >= questions.length) return showDone();
+
+  const q = questions[idx];
+  const total = questions.length;
+
+  document.getElementById('q-num').textContent = 'Q.' + String(idx + 1).padStart(2, '0');
+  document.getElementById('q-of').textContent = 'OF ' + String(total).padStart(2, '0');
+
+  // reset answer pane
+  const at = document.getElementById('answer-text');
+  at.classList.remove('visible');
+  document.getElementById('answer-label').textContent = 'AWAITING INPUT';
+  document.getElementById('answer-index').textContent = '';
+
+  // type the question
+  const qel = document.getElementById('question-text');
+  typeText(qel, q.q, () => renderChoices(q.opts));
+
+  updateProgress(idx, total);
+}
+
+// ── RENDER CHOICES ──
+function renderChoices(opts) {
+  const container = document.getElementById('choices-container');
+  container.classList.remove('hiding');
+  container.innerHTML = '';
+
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.innerHTML = `<span class="choice-key">[${String.fromCharCode(65 + i)}]</span>${opt}`;
+    btn.onclick = () => selectChoice(i, opt, btn);
+    container.appendChild(btn);
+  });
+}
+
+// ── SELECT CHOICE ──
+function selectChoice(idx, text, btn) {
+  // disable all
+  document.querySelectorAll('.choice').forEach(b => {
+    b.onclick = null;
+    b.style.pointerEvents = 'none';
+  });
+  btn.classList.add('selected');
+
+  // show in answer pane
+  const at = document.getElementById('answer-text');
+  at.textContent = text;
+  document.getElementById('answer-label').textContent = 'RESPONSE LOGGED';
+  document.getElementById('answer-index').textContent = '[' + String.fromCharCode(65 + idx) + ']';
+  setTimeout(() => at.classList.add('visible'), 80);
+
+  answers.push({ q: questions[current].q, a: text });
+
+  // hide choices
+  const container = document.getElementById('choices-container');
+  setTimeout(() => {
+    container.classList.add('hiding');
+    setTimeout(() => {
+      current++;
+      loadQuestion(current);
+    }, 450);
+  }, 600);
+}
+
+// ── ID CODE POOL ──
+// Replace or extend these with whatever codes you need
+const idPool = [
+  "7777-7777", "901-202-1", "REMEMBER", "FLATLINE",
+  "TOO-CLICHE", "WOODS", "DANIEL", "MILES",
+
+];
+
+let assignedCode = null;
+
+function pickCode() {
+  return idPool[Math.floor(Math.random() * idPool.length)];
+}
+
+function copyCode() {
+  if (!assignedCode) return;
+  navigator.clipboard.writeText(assignedCode).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// ── PROGRESS BAR ──
+function updateProgress(idx, total) {
+  const pct = (idx / total) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ── DONE ──
+function showDone() {
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('choices-container').style.display = 'none';
+  const done = document.getElementById('done-screen');
+  done.classList.add('show');
+
+  const summary = document.getElementById('done-summary');
+  summary.innerHTML = '';
+  answers.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'done-row';
+    row.innerHTML = `
+      <span class="done-row-q">Q${i+1}.</span>
+      <span class="done-row-a">${item.a}</span>
+    `;
+    summary.appendChild(row);
+  });
+
+  // pick and animate the ID code
+  assignedCode = pickCode();
+  const codeEl = document.getElementById('id-code-value');
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-';
+  let scrambleCount = 0;
+  const maxScrambles = 18;
+  const scramble = setInterval(() => {
+    if (scrambleCount >= maxScrambles) {
+      clearInterval(scramble);
+      codeEl.textContent = assignedCode;
+      return;
+    }
+    codeEl.textContent = assignedCode.split('').map((c, i) => {
+      if (c === '-') return '-';
+      const reveal = i < Math.floor((scrambleCount / maxScrambles) * assignedCode.length);
+      return reveal ? c : chars[Math.floor(Math.random() * chars.length)];
+    }).join('');
+    scrambleCount++;
+  }, 60);
+
+  // clear question + answer panes
+  document.getElementById('question-text').textContent = 'END OF SESSION';
+  const at = document.getElementById('answer-text');
+  at.textContent = 'COMPLETE';
+  at.classList.add('visible');
+  document.getElementById('answer-label').textContent = 'STATUS';
+}
+
+// ── RESTART ──
+function restartQuiz() {
+  current = 0;
+  answers = [];
+  assignedCode = null;
+  document.getElementById('id-code-value').textContent = '--------';
+
+  document.getElementById('done-screen').classList.remove('show');
+  document.getElementById('choices-container').style.display = '';
+  document.getElementById('choices-container').classList.remove('hiding');
+
+  const at = document.getElementById('answer-text');
+  at.classList.remove('visible');
+  document.getElementById('answer-label').textContent = 'AWAITING INPUT';
+
+  loadQuestion(0);
+}
+</script>
+</body>
+</html>
