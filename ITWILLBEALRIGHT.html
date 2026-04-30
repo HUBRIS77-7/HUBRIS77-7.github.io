@@ -8,53 +8,38 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      background: #050d05;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 2rem 1rem;
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #1a1208;
       font-family: 'VT323', 'Courier New', monospace;
-    }
-
-    #game-wrap {
-      width: 720px;
-      max-width: 100%;
+      overflow: hidden;
     }
 
     #terminal {
-      background: #0a0f0a;
-      border: 2px solid #1a3a1a;
-      border-radius: 4px;
-      padding: 24px;
-      font-family: inherit;
+      width: 100%;
+      height: 100vh;
+      background: #23170a;
+      border: 0;
+      border-radius: 0;
+      padding: 28px 32px;
       font-size: 19px;
-      color: #33ff33;
-      min-height: 560px;
+      color: #ffcc66;
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
     }
 
-    /* CRT scanline overlay */
     #terminal::before {
       content: '';
       pointer-events: none;
       position: absolute;
       inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.08) 2px,
-        rgba(0, 0, 0, 0.08) 4px
-      );
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.08) 2px, rgba(0, 0, 0, 0.08) 4px);
       z-index: 10;
     }
 
-    /* Subtle vignette */
     #terminal::after {
       content: '';
       pointer-events: none;
@@ -64,196 +49,213 @@
       z-index: 11;
     }
 
-    #output {
-      flex: 1;
-      overflow-y: auto;
-      padding-bottom: 12px;
-      line-height: 1.55;
-    }
-
+    #output { flex: 1; overflow-y: auto; padding-bottom: 12px; line-height: 1.55; }
     #output::-webkit-scrollbar { width: 6px; }
-    #output::-webkit-scrollbar-track { background: #0a0f0a; }
-    #output::-webkit-scrollbar-thumb { background: #1d5c1d; border-radius: 3px; }
+    #output::-webkit-scrollbar-track { background: #23170a; }
+    #output::-webkit-scrollbar-thumb { background: #7e4f1a; border-radius: 3px; }
 
     .line { margin-bottom: 2px; white-space: pre-wrap; word-break: break-word; }
-    .line.cmd    { color: #88ff88; }
-    .line.title  { color: #55ff55; font-size: 21px; }
-    .line.dim    { color: #1f8f1f; }
-    .line.bright { color: #aaffaa; }
-    .line.item   { color: #66ff66; }
-    .line.error  { color: #cc4444; }
-    .line.warn   { color: #ddaa22; }
-    .line.sep    { color: #1a4a1a; }
+    .line.cmd    { color: #ffd890; }
+    .line.title  { color: #ffb347; font-size: 21px; }
+    .line.dim    { color: #b6782f; }
+    .line.bright { color: #ffe4ad; }
+    .line.item   { color: #ffd26a; }
+    .line.error  { color: #d4583d; }
+    .line.warn   { color: #ffd066; }
+    .line.sep    { color: #6e4318; }
 
     #input-row {
       display: flex;
       align-items: center;
-      border-top: 1px solid #1a3a1a;
+      border-top: 1px solid #6e4318;
       padding-top: 10px;
       margin-top: 8px;
       position: relative;
       z-index: 12;
+      opacity: 0;
+      transition: opacity 0.45s ease;
     }
 
-    #prompt { color: #55ff55; margin-right: 6px; white-space: nowrap; }
+    #input-row.visible { opacity: 1; }
+
+    #prompt { color: #ffb347; margin-right: 6px; white-space: nowrap; }
 
     #cmd-input {
       flex: 1;
       background: transparent;
       border: none;
       outline: none;
-      color: #88ff88;
+      color: #ffd890;
       font-family: inherit;
       font-size: 19px;
-      caret-color: #33ff33;
+      caret-color: #ffcc66;
     }
   </style>
 </head>
 <body>
-<div id="game-wrap">
-  <div id="terminal">
-    <div id="output"></div>
-    <div id="input-row">
-      <span id="prompt">&gt;&nbsp;</span>
-      <input id="cmd-input" type="text" autocomplete="off" autocorrect="off"
-             spellcheck="false" aria-label="Command input" maxlength="80" />
-    </div>
+<div id="terminal">
+  <div id="output"></div>
+  <div id="input-row">
+    <span id="prompt">&gt;&nbsp;</span>
+    <input id="cmd-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Command input" maxlength="120" />
   </div>
 </div>
 
 <script>
 (function () {
-
-/* ============================================================
-   GAME DATA
-   ============================================================
-
-   To add a new item:
-     1. Add a key to ITEMS with name, desc, takeable, and useWith.
-     2. Drop the key name into a room's items array.
-
-   To add a new room:
-     1. Add a key to ROOMS with name, desc, shortDesc, exits, and items.
-     2. Wire up the reverse exit on the neighbouring room.
-
-   To add a locked passage:
-     1. Set the exit direction to null in ROOMS.exits.
-     2. Add an exitBlocked entry with item and roomUnlock fields.
-     3. In the item's useWith, add a handler that calls unlockRoom().
-
-   ============================================================ */
-
 const ITEMS = {
-  rusty_key: {
-    name: "rusty key",
-    desc: "An old iron key, spotted with rust. A '3' is stamped on its bow.",
-    takeable: true,
-    useWith: {
-      locked_door: {
-        msg: "You fit the rusty key into the lock. With a grinding click, the door swings open.",
-        onUse: () => unlockRoom("cellar", "landing", "east")
-      }
-    }
-  },
-  lantern: {
-    name: "brass lantern",
-    desc: "A dented brass lantern. Its flame flickers but holds.",
-    takeable: true,
-    useWith: {}
-  },
-  old_note: {
-    name: "crumpled note",
-    desc: 'The note reads: "The key to the cellar is where the light is weakest."',
-    takeable: true,
-    useWith: {}
-  },
-  tome: {
-    name: "leather tome",
-    desc: "A heavy book bound in cracked leather. The title reads 'Forbidden Cartographies.' The pages are dense with maps of places that don't exist.",
-    takeable: true,
-    useWith: {}
-  },
-  coin: {
-    name: "silver coin",
-    desc: "A silver coin stamped with a face you don't recognise. It's warm to the touch.",
-    takeable: true,
-    useWith: {}
-  }
+  oubliette_door_key: { name: "door key", desc: "", takeable: true, useWith: {} },
+  forbidden_places_book: { name: "forbidden places book", desc: "", takeable: true, useWith: {} },
+  apple: { name: "an apple", desc: "", takeable: true, useWith: {} },
+  apple_key: { name: "apple key", desc: "", takeable: true, useWith: {} },
+  leather_briefcase: { name: "leather briefcase", desc: "", takeable: true, useWith: {} },
+
+  narra_anoms_and_you: { name: "Narra-Anoms and You", desc: "", takeable: true, useWith: {} },
+  functioning_keyboard: { name: "functioning keyboard", desc: "", takeable: true, useWith: {} },
+  personal_id: { name: "personal ID", desc: "", takeable: true, useWith: {} },
+  note_to_self: { name: "note to self", desc: "", takeable: true, useWith: {} },
+  small_paperclip: { name: "small paperclip", desc: "", takeable: true, useWith: {} },
+
+  fuel_can: { name: "fuel can", desc: "", takeable: true, useWith: {} },
+  fuse: { name: "fuse", desc: "", takeable: true, useWith: {} },
+  fuse_box_key: { name: "fuse box key", desc: "", takeable: true, useWith: {} },
+  replacement_switch: { name: "replacement switch", desc: "", takeable: true, useWith: {} },
+
+  cryostasis_log: { name: "cryostasis log", desc: "", takeable: true, useWith: {} },
+  malfunctioning_keycard: { name: "malfunctioning keycard", desc: "", takeable: true, useWith: {} },
+  keycard_encoder: { name: "keycard encoder", desc: "", takeable: true, useWith: {} },
+  screwdriver: { name: "screwdriver", desc: "", takeable: true, useWith: {} },
+
+  captains_log: { name: "captain's log", desc: "", takeable: true, useWith: {} },
+  escape_pod_key: { name: "escape pod key", desc: "", takeable: true, useWith: {} },
+  cargo_list: { name: "itemized list of onboard cargo", desc: "", takeable: true, useWith: {} },
+
+  loaded_revolver: { name: "loaded revolver", desc: "", takeable: true, useWith: {} },
+  captains_final_log: { name: "captain's final log", desc: "", takeable: true, useWith: {} }
 };
 
 const ROOMS = {
-  foyer: {
-    name: "Foyer",
-    desc: "You stand in the entrance hall of an abandoned manor. Dust motes drift through narrow slits of pale light. A moth-eaten rug runs north toward a grand staircase. To the east is a study. The front door behind you is sealed shut.",
-    shortDesc: "The dusty foyer of the manor.",
-    exits: { north: "landing", east: "study" },
-    exitBlocked: {},
-    items: ["old_note"],
-    visited: false
-    /* To add an event when the player enters this room for the first time:
-       onFirstEnter: () => print("A chill runs down your spine.", "warn")  */
-  },
-  landing: {
-    name: "Grand Staircase Landing",
-    desc: "A broad landing overlooks the foyer below. A cracked painting of a stern man stares down at you. Passages lead south back to the foyer, west to a library, and east to a locked door. Faint scratching sounds drift from behind it.",
-    shortDesc: "The landing at the top of the stairs.",
-    exits: { south: "foyer", west: "library", east: null },
+  oubliette: {
+    name: "Oubliette",
+    desc: "",
+    shortDesc: "",
+    exits: { north: "cell_hall" },
     exitBlocked: {
-      east: {
-        item: "rusty_key",
-        roomUnlock: "cellar",
-        msg: "The door to the east is locked solid. You need a key."
-      }
+      north: { msg: "The only door is locked. A key sits in the lock from your side." }
     },
-    items: ["coin"],
+    items: [],
     visited: false
   },
-  study: {
-    name: "The Study",
-    desc: "Shelves of rotting ledgers line the walls. A mahogany desk dominates the room. A brass lantern sits on the desk, still lit, casting nervous shadows. To the west the foyer awaits.",
-    shortDesc: "A dim study lined with old ledgers.",
-    exits: { west: "foyer" },
-    exitBlocked: {},
-    items: ["lantern", "rusty_key"],
-    visited: false
-  },
-  library: {
-    name: "The Library",
-    desc: "Floor-to-ceiling shelves, half-collapsed, spill their contents across the floor. Something stirred here recently — fresh footprints in the dust lead to a reading chair and back. The landing is to the east.",
-    shortDesc: "A chaotic library with a recent disturbance.",
-    exits: { east: "landing" },
-    exitBlocked: {},
-    items: ["tome"],
-    visited: false
-  },
-  cellar: {
-    name: "The Cellar",
-    desc: "Stone steps descend into a low-ceilinged cellar. Rows of empty wine racks cast grid-shadows on the floor. At the far end, a hatch in the ceiling leads up. Something glints in the corner. The staircase leads west.",
-    shortDesc: "A cold, stone cellar.",
-    exits: { west: "landing" },
+  cell_hall: {
+    name: "Cell Hall",
+    desc: "",
+    shortDesc: "",
+    exits: { south: "oubliette", north: "hub" },
     exitBlocked: {},
     items: [],
-    visited: false,
-    isLocked: true
+    visited: false
+  },
+  hub: {
+    name: "Hub",
+    desc: "",
+    shortDesc: "",
+    exits: { south: "cell_hall", east: null, west: null, north: null, up: "collapsed_hall" },
+    exitBlocked: {
+      east: { msg: "The eastern door is locked." },
+      west: { msg: "The western door is locked." },
+      north: { msg: "The northern door is sealed." }
+    },
+    items: ["apple", "leather_briefcase"],
+    visited: false
+  },
+  offices: {
+    name: "Offices",
+    desc: "",
+    shortDesc: "",
+    exits: { east: "hub" },
+    exitBlocked: {},
+    items: ["narra_anoms_and_you", "functioning_keyboard", "personal_id", "note_to_self", "small_paperclip"],
+    visited: false
+  },
+  collapsed_hall: {
+    name: "Collapsed Hall",
+    desc: "",
+    shortDesc: "",
+    exits: { down: "hub" },
+    exitBlocked: {},
+    items: [],
+    visited: false
+  },
+  generator_room: {
+    name: "Generator Room",
+    desc: "",
+    shortDesc: "",
+    exits: { east: "hub" },
+    exitBlocked: {},
+    items: ["fuel_can", "fuse", "fuse_box_key", "replacement_switch"],
+    visited: false
+  },
+  realization: {
+    name: "Realization",
+    desc: "",
+    shortDesc: "",
+    exits: { south: "hub", east: null },
+    exitBlocked: {
+      east: { msg: "A reinforced door bars the way to Grief." }
+    },
+    items: ["cryostasis_log", "malfunctioning_keycard", "keycard_encoder", "screwdriver"],
+    visited: false
+  },
+  grief: {
+    name: "Grief",
+    desc: "",
+    shortDesc: "",
+    exits: { west: "realization", east: null },
+    exitBlocked: {
+      east: { msg: "The passage to Salvation is locked." }
+    },
+    items: ["captains_log", "escape_pod_key", "cargo_list"],
+    visited: false
+  },
+  salvation: {
+    name: "Salvation",
+    desc: "",
+    shortDesc: "",
+    exits: { west: "grief", east: null },
+    exitBlocked: {
+      east: { msg: "The pod controls reject your launch sequence." }
+    },
+    items: ["loaded_revolver", "captains_final_log"],
+    visited: false
+  },
+  exit: {
+    name: "Exit",
+    desc: "",
+    shortDesc: "",
+    exits: { west: "salvation" },
+    exitBlocked: {},
+    items: [],
+    visited: false
   }
 };
 
-/* ============================================================
-   GAME STATE
-   ============================================================ */
-
 const state = {
-  currentRoom: "foyer",
+  currentRoom: "oubliette",
   inventory: [],
-  turnCount: 0
+  turnCount: 0,
+  cellsSearched: false,
+  treeChecked: false,
+  satOnBench: false,
+  generatorInspected: false,
+  generatorFixed: false,
+  encoderOpened: false,
+  keycardEncoded: false,
+  finalCodeWord: null
 };
-
-/* ============================================================
-   OUTPUT HELPERS
-   ============================================================ */
 
 const outputEl = document.getElementById("output");
 const inputEl  = document.getElementById("cmd-input");
+const inputRow = document.getElementById("input-row");
 
 function print(text, cls) {
   const div = document.createElement("div");
@@ -265,23 +267,13 @@ function print(text, cls) {
 
 function blank() { print(""); }
 
-/* ============================================================
-   ROOM DISPLAY
-   ============================================================ */
-
 function printRoom(roomId, force) {
   const room = ROOMS[roomId];
   blank();
   print("[ " + room.name.toUpperCase() + " ]", "title");
-  print("─".repeat(38), "sep");
-
-  if (!room.visited || force) {
-    print(room.desc, "bright");
-    if (!room.visited && typeof room.onFirstEnter === "function") room.onFirstEnter();
-    room.visited = true;
-  } else {
-    print(room.shortDesc, "bright");
-  }
+  print("─".repeat(46), "sep");
+  print((!room.visited || force) ? room.desc : room.shortDesc, "bright");
+  room.visited = true;
 
   const here = (room.items || []).filter(id => ITEMS[id]);
   if (here.length) {
@@ -289,27 +281,12 @@ function printRoom(roomId, force) {
     here.forEach(id => print("  A " + ITEMS[id].name + " is here.", "item"));
   }
 
+  blank();
   const normalExits  = Object.entries(room.exits).filter(([, dest]) => dest !== null).map(([d]) => d.toUpperCase());
   const blockedExits = Object.keys(room.exitBlocked || {}).map(d => d.toUpperCase());
-  const allExits     = [...new Set([...normalExits, ...blockedExits])];
-  blank();
-  print("Exits: " + (allExits.length ? allExits.join("  ") : "none"), "dim");
+  print("Exits: " + [...new Set([...normalExits, ...blockedExits])].join("  "), "dim");
   blank();
 }
-
-/* ============================================================
-   UNLOCK HELPER
-   ============================================================ */
-
-function unlockRoom(roomId, fromRoom, direction) {
-  ROOMS[roomId].isLocked = false;
-  ROOMS[fromRoom].exits[direction] = roomId;
-  if (ROOMS[fromRoom].exitBlocked) delete ROOMS[fromRoom].exitBlocked[direction];
-}
-
-/* ============================================================
-   COMMAND PARSER
-   ============================================================ */
 
 const DIR_ALIASES = { n: "north", s: "south", e: "east", w: "west", u: "up", d: "down" };
 const DIRECTIONS   = new Set(["north","south","east","west","up","down"]);
@@ -319,6 +296,7 @@ const TAKE_VERBS   = new Set(["take","get","pick","grab","collect","snag"]);
 const DROP_VERBS   = new Set(["drop","leave","put","place","set","discard"]);
 const INV_VERBS    = new Set(["inventory","inv","i","items","pockets","bag","carrying"]);
 const USE_VERBS    = new Set(["use","unlock","open","insert","apply","combine"]);
+const SIT_VERBS    = new Set(["sit"]);
 const HELP_VERBS   = new Set(["help","?","commands","h","hint"]);
 const QUIT_VERBS   = new Set(["quit","exit","bye","q"]);
 
@@ -329,33 +307,42 @@ function tokenize(raw) {
 function findItem(partial, pool) {
   if (!partial) return null;
   const needle = partial.replace(/ /g, "_");
-  return pool.find(id => {
-    if (!ITEMS[id]) return false;
-    return ITEMS[id].name.toLowerCase().includes(partial) || id.includes(needle);
-  }) || null;
+  return pool.find(id => ITEMS[id] && (ITEMS[id].name.toLowerCase().includes(partial) || id.includes(needle))) || null;
 }
 
-/* ============================================================
-   COMMAND HANDLERS
-   ============================================================ */
+function hasItem(id) { return state.inventory.includes(id); }
+function giveItem(id) {
+  if (!hasItem(id)) state.inventory.push(id);
+}
+function removeFromRoom(roomId, itemId) {
+  ROOMS[roomId].items = (ROOMS[roomId].items || []).filter(i => i !== itemId);
+}
 
 function cmdMove(tokens) {
   const room = ROOMS[state.currentRoom];
   const verb = tokens[0];
   let dir = DIRECTIONS.has(verb) ? verb : (DIR_ALIASES[verb] || tokens.slice(1).join(" "));
   dir = DIR_ALIASES[dir] || dir;
-
   if (!dir) { print("Go where?", "error"); return; }
 
+  if (state.currentRoom === "oubliette" && dir === "north") {
+    giveItem("oubliette_door_key");
+    delete room.exitBlocked.north;
+    print("You pull the key from the lock and pocket it as you leave.", "bright");
+  }
+
   if (room.exitBlocked && room.exitBlocked[dir]) {
-    const block = room.exitBlocked[dir];
-    print(block.msg, "warn");
+    print(room.exitBlocked[dir].msg, "warn");
     return;
   }
 
   const dest = room.exits[dir];
   if (!dest) { print("You can't go that way.", "error"); return; }
-  if (ROOMS[dest] && ROOMS[dest].isLocked) { print("That way is blocked.", "warn"); return; }
+
+  if (state.currentRoom === "hub" && dest === "realization" && !state.generatorFixed) {
+    print("The way north is dark. The generator needs to be fixed first.", "warn");
+    return;
+  }
 
   state.currentRoom = dest;
   printRoom(dest);
@@ -364,13 +351,55 @@ function cmdMove(tokens) {
 function cmdLook(tokens) {
   const room = ROOMS[state.currentRoom];
   const rest = tokens.slice(1).join(" ");
-
   if (!rest) { printRoom(state.currentRoom, true); return; }
+
+  if (state.currentRoom === "cell_hall" && (rest.includes("cell") || rest.includes("cells"))) {
+    if (!state.cellsSearched) {
+      state.cellsSearched = true;
+      ROOMS.cell_hall.items.push("forbidden_places_book");
+      print("You inspect the cells and uncover a forbidden places book.", "bright");
+    } else {
+      print("You already searched the cells.", "dim");
+    }
+    return;
+  }
+
+  if (state.currentRoom === "hub") {
+    if (rest.includes("east") || rest.includes("east door")) { print("The eastern door is locked.", "warn"); return; }
+    if (rest.includes("west") || rest.includes("west door")) { print("The western door is locked.", "warn"); return; }
+    if (rest.includes("north") || rest.includes("north door")) { print("The northern door is sealed.", "warn"); return; }
+    if (rest.includes("tree")) {
+      print("At the base of the tree rests an apple.", "bright");
+      return;
+    }
+    if (rest.includes("apple")) {
+      if (!state.treeChecked) {
+        state.treeChecked = true;
+        if (!hasItem("apple_key") && !ROOMS.hub.items.includes("apple_key")) ROOMS.hub.items.push("apple_key");
+        print("You inspect the apple and find a key hidden inside.", "bright");
+      } else {
+        print("The apple has already been split open.", "dim");
+      }
+      return;
+    }
+  }
+
+  if (state.currentRoom === "generator_room" && rest.includes("generator")) {
+    state.generatorInspected = true;
+    print("The generator needs fuel, a fuse, a fuse-box key, and a replacement switch.", "bright");
+    return;
+  }
+
+  if (state.currentRoom === "salvation" && rest.includes("final log")) {
+    state.finalCodeWord = "sunrise";
+    print("A code-word is scrawled in the margin: SUNRISE.", "bright");
+    return;
+  }
 
   const pool = [...(room.items || []), ...state.inventory];
   const found = findItem(rest, pool);
   if (!found) { print("You don't see that here.", "error"); return; }
-  print(ITEMS[found].desc, "bright");
+  print(ITEMS[found].desc || "", "bright");
 }
 
 function cmdTake(tokens) {
@@ -379,10 +408,10 @@ function cmdTake(tokens) {
   if (!rest) { print("Take what?", "error"); return; }
   const found = findItem(rest, room.items || []);
   if (!found) { print("You don't see that here.", "error"); return; }
-  if (!ITEMS[found].takeable) { print("You can't take that.", "warn"); return; }
-  room.items = room.items.filter(i => i !== found);
-  state.inventory.push(found);
+  removeFromRoom(state.currentRoom, found);
+  giveItem(found);
   print("You pick up the " + ITEMS[found].name + ".", "bright");
+
 }
 
 function cmdDrop(tokens) {
@@ -410,44 +439,120 @@ function cmdInventory() {
 function cmdUse(tokens) {
   const rest = tokens.slice(1).join(" ");
   const parts = rest.split(/ on | with /);
-  const itemPart   = (parts[0] || "").trim();
+  const itemPart = (parts[0] || "").trim();
   const targetPart = (parts[1] || "").trim();
 
   const invItem = findItem(itemPart, state.inventory);
   if (!invItem) { print("You're not carrying that.", "error"); return; }
 
-  const useMap = ITEMS[invItem].useWith || {};
-  const matchedTarget = Object.keys(useMap).find(k =>
-    targetPart.includes(k.replace(/_/g, " ")) ||
-    (!targetPart && Object.keys(useMap).length === 1)
-  );
+  if (state.currentRoom === "hub" && invItem === "apple_key" && targetPart.includes("east")) {
+    ROOMS.hub.exits.east = "offices";
+    delete ROOMS.hub.exitBlocked.east;
+    print("The apple key unlocks the eastern door.", "bright");
+    return;
+  }
 
-  if (!matchedTarget) { print("You can't use that here.", "warn"); return; }
+  if (state.currentRoom === "hub" && invItem === "leather_briefcase" && targetPart.includes("west")) {
+    ROOMS.hub.exits.west = "generator_room";
+    delete ROOMS.hub.exitBlocked.west;
+    print("Inside the briefcase is a passkey. The western door unlocks.", "bright");
+    return;
+  }
 
-  print(useMap[matchedTarget].msg, "bright");
-  if (typeof useMap[matchedTarget].onUse === "function") useMap[matchedTarget].onUse();
+  if (state.currentRoom === "hub" && invItem === "oubliette_door_key" && targetPart.includes("north")) {
+    print("The northern seal disengages, but the darkness beyond remains heavy.", "bright");
+    return;
+  }
+
+  if (state.currentRoom === "generator_room" && targetPart.includes("generator")) {
+    const needed = ["fuel_can", "fuse", "fuse_box_key", "replacement_switch"];
+    const missing = needed.filter(i => !hasItem(i));
+    if (missing.length) {
+      print("You're still missing: " + missing.map(i => ITEMS[i].name).join(", ") + ".", "warn");
+      return;
+    }
+    if (!state.generatorFixed) {
+      state.generatorFixed = true;
+      ROOMS.hub.exits.north = "realization";
+      delete ROOMS.hub.exitBlocked.north;
+      print("You repair the generator. Lights in Realization flicker to life.", "bright");
+    } else {
+      print("The generator is already running.", "dim");
+    }
+    return;
+  }
+
+  if (state.currentRoom === "realization" && invItem === "screwdriver" && targetPart.includes("encoder")) {
+    state.encoderOpened = true;
+    print("You service the keycard encoder with the screwdriver.", "bright");
+    return;
+  }
+
+  if (state.currentRoom === "realization" && invItem === "malfunctioning_keycard" && targetPart.includes("encoder")) {
+    if (!state.encoderOpened) { print("The encoder needs repair before it can encode anything.", "warn"); return; }
+    state.keycardEncoded = true;
+    print("The keycard is now properly encoded.", "bright");
+    return;
+  }
+
+  if (state.currentRoom === "realization" && invItem === "malfunctioning_keycard" && targetPart.includes("door")) {
+    if (!state.keycardEncoded) { print("The keycard is still malfunctioning.", "warn"); return; }
+    ROOMS.realization.exits.east = "grief";
+    delete ROOMS.realization.exitBlocked.east;
+    print("The door to Grief unlocks.", "bright");
+    return;
+  }
+
+  if (state.currentRoom === "grief" && invItem === "escape_pod_key" && (targetPart.includes("salvation") || targetPart.includes("door"))) {
+    ROOMS.grief.exits.east = "salvation";
+    delete ROOMS.grief.exitBlocked.east;
+    print("You unlock the passage to Salvation.", "bright");
+    return;
+  }
+
+  if (state.currentRoom === "salvation" && (targetPart.includes("pod") || targetPart.includes("controls") || targetPart.includes("launch"))) {
+    const hasCard = hasItem("malfunctioning_keycard") && state.keycardEncoded;
+    const hasPodKey = hasItem("escape_pod_key");
+    const hasCode = !!state.finalCodeWord;
+
+    if (hasCard && hasPodKey && hasCode) {
+      ROOMS.salvation.exits.east = "exit";
+      delete ROOMS.salvation.exitBlocked.east;
+      print("You complete the launch sequence and the pod opens the way to Exit.", "bright");
+      return;
+    }
+
+    print("Launch requires an encoded keycard, the escape pod key, and the captain's code-word.", "warn");
+    return;
+  }
+
+  print("You can't use that here.", "warn");
+}
+
+function cmdSit(tokens) {
+  const rest = tokens.slice(1).join(" ");
+  if (state.currentRoom !== "hub" || (!rest || !rest.includes("bench"))) {
+    print("You can't sit there.", "warn");
+    return;
+  }
+  state.satOnBench = true;
+  print("You sit on the bench for a moment and gather yourself.", "bright");
 }
 
 function cmdHelp() {
   blank();
   print("COMMANDS", "title");
-  print("─".repeat(38), "sep");
-  print("  LOOK / L             — describe your surroundings", "dim");
-  print("  GO [direction]       — move (north, south, east, west)", "dim");
-  print("  EXAMINE [item]       — inspect something closely", "dim");
-  print("  TAKE [item]          — pick up an item", "dim");
-  print("  DROP [item]          — leave an item behind", "dim");
-  print("  INVENTORY / I        — see what you're carrying", "dim");
-  print("  USE [item] ON [x]    — use an item on something", "dim");
-  print("  QUIT                 — end the game", "dim");
-  blank();
-  print("Compass shorthand: N  S  E  W  U  D", "dim");
+  print("─".repeat(46), "sep");
+  print("  LOOK / L                 — describe or inspect", "dim");
+  print("  GO [direction]           — move", "dim");
+  print("  TAKE [item]              — pick up an item", "dim");
+  print("  DROP [item]              — leave an item", "dim");
+  print("  INVENTORY / I            — list carried items", "dim");
+  print("  USE [item] ON [target]   — use an item", "dim");
+  print("  SIT ON BENCH             — sit when possible", "dim");
+  print("  QUIT                     — end", "dim");
   blank();
 }
-
-/* ============================================================
-   MAIN DISPATCH
-   ============================================================ */
 
 function handleCommand(raw) {
   print("> " + raw, "cmd");
@@ -460,26 +565,56 @@ function handleCommand(raw) {
   if (LOOK_VERBS.has(verb)) { cmdLook(tokens); return; }
   if (TAKE_VERBS.has(verb)) { cmdTake(tokens); return; }
   if (DROP_VERBS.has(verb)) { cmdDrop(tokens); return; }
-  if (INV_VERBS.has(verb))  { cmdInventory();  return; }
-  if (USE_VERBS.has(verb))  { cmdUse(tokens);  return; }
-  if (HELP_VERBS.has(verb)) { cmdHelp();       return; }
-  if (QUIT_VERBS.has(verb)) { print("The manor fades to black...", "dim"); blank(); return; }
+  if (INV_VERBS.has(verb)) { cmdInventory(); return; }
+  if (USE_VERBS.has(verb)) { cmdUse(tokens); return; }
+  if (SIT_VERBS.has(verb)) { cmdSit(tokens); return; }
+  if (HELP_VERBS.has(verb)) { cmdHelp(); return; }
+  if (QUIT_VERBS.has(verb)) { print("Session terminated.", "dim"); blank(); return; }
 
   print("You pause, unsure what you mean. (Try HELP)", "error");
 }
 
-/* ============================================================
-   BOOT
-   ============================================================ */
-
-function boot() {
-  print("╔════════════════════════════════════════╗", "sep");
-  print("║   THE ASHWOOD MANOR  —  v1.0           ║", "title");
-  print("║   A Text Adventure                     ║", "dim");
-  print("╚════════════════════════════════════════╝", "sep");
+function startGame() {
+  print("╔══════════════════════════════════════════════╗", "sep");
+  print("║   THE ASHWOOD MANOR  —  v2.1                ║", "title");
+  print("║   A Text Adventure                           ║", "dim");
+  print("╚══════════════════════════════════════════════╝", "sep");
   blank();
   print("Type HELP at any time for a list of commands.", "dim");
   printRoom(state.currentRoom);
+  inputRow.classList.add("visible");
+  inputEl.focus();
+}
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+async function fauxBootSequence() {
+  const lines = [
+    ["ASHWOOD SYSTEMS BIOS  v3.03", "title"],
+    ["COPYRIGHT (C) 1994  ASHWOOD INTERACTIVE", "dim"],
+    ["", ""],
+    ["CPU............... ASWX-486DX", "dim"],
+    ["BASE MEMORY....... 640K", "dim"],
+    ["EXTENDED MEMORY... 4096K", "dim"],
+    ["", ""],
+    ["Mounting narrative drive............OK", "bright"],
+    ["Loading atmospheric routines........OK", "bright"],
+    ["Indexing room graph..................OK", "bright"],
+    ["Calibrating parser...................OK", "bright"],
+    ["", ""],
+    ["WARNING: This system may fabricate reality.", "warn"],
+    ["", ""],
+    ["Boot complete. Starting simulation...", "title"]
+  ];
+
+  for (const [text, cls] of lines) {
+    print(text, cls);
+    await sleep(text ? 260 : 120);
+  }
+
+  await sleep(650);
+  outputEl.innerHTML = "";
+  startGame();
 }
 
 inputEl.addEventListener("keydown", e => {
@@ -490,9 +625,7 @@ inputEl.addEventListener("keydown", e => {
   }
 });
 
-inputEl.focus();
-boot();
-
+fauxBootSequence();
 })();
 </script>
 </body>
