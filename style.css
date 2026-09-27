@@ -54,6 +54,15 @@ a:hover   { color: #ff0000; background: #ffff00; }
   font-weight: bold;
 }
 
+.masthead .subtag {
+  margin: 2px 0 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #000066;
+}
+
 .masthead .flags { font-size: 30px; }
 
 .flag {
@@ -319,6 +328,8 @@ table.catalog .pic {
 }
 
 /* ---------- product "photos" (made of pure CSS, very high tech) ---------- */
+.family-grid { max-width: 400px; margin: 0 auto; }
+
 .photo {
   display: inline-block;
   border: 5px ridge #c8a24a;
@@ -343,6 +354,7 @@ table.catalog .pic {
 
 /* ---------- forms ---------- */
 fieldset {
+  min-width: 0;
   border: 2px groove #c0c0c0;
   background: #f0f0f0;
   margin: 10px 0;
@@ -426,6 +438,15 @@ button:active, input[type=submit]:active, input[type=reset]:active { border-styl
 }
 .midi button { font-size: 11px; padding: 1px 6px; }
 
+/* ---------- little secrets ---------- */
+.hidden-text { color: #fffff0; margin: 0; font-size: 12px; }
+.hidden-text::selection { color: #cc0000; background: #000; }
+a.eye:link, a.eye:visited { color: #b0b0b0; text-decoration: none; font-size: 10px; }
+a.eye:hover { color: #cc0000; background: transparent; }
+.removed { color: #999; font-style: italic; }
+.checklist li { margin-bottom: 4px; list-style: "\2610  "; }
+.values b { color: #cc0000; font-size: 18px; }
+
 /* ---------- footer ---------- */
 .footer {
   background: #c0c0c0;
@@ -455,6 +476,111 @@ button:active, input[type=submit]:active, input[type=reset]:active { border-styl
   to { transform: translateY(28px) rotate(180deg); opacity: 0; }
 }
 
+/* ================================================================
+   A.O.P.A. SECURE TERMINAL
+   ================================================================ */
+body.aopa {
+  background: #000000;
+  background-image: repeating-linear-gradient(0deg, rgba(0,255,0,.04) 0 1px, transparent 1px 3px);
+  color: #33ff33;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 15px;
+}
+body.aopa a:link, body.aopa a:visited { color: #ffcc00; }
+body.aopa a:hover { background: #ffcc00; color: #000; }
+.terminal {
+  width: 760px;
+  max-width: calc(100% - 32px);
+  margin: 0 auto;
+  border: 2px solid #33ff33;
+  padding: 18px 20px 12px;
+  box-sizing: border-box;
+  background: #001100;
+  box-shadow: 0 0 18px rgba(51,255,51,.35);
+}
+.terminal h1 {
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 3px;
+  margin: 12px 0 4px;
+  color: #ffcc00;
+  text-shadow: 0 0 6px #ffcc00;
+}
+.terminal h2 { font-size: 17px; color: #ffcc00; margin: 22px 0 6px; }
+.terminal .dim { color: #1f9f1f; }
+.terminal hr.dash { border: 0; border-top: 2px dashed #33ff33; margin: 12px 0 16px; }
+.terminal .alert { color: #ff3333; font-weight: bold; }
+.terminal input[type=password] {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 18px;
+  letter-spacing: 3px;
+  background: #000;
+  color: #33ff33;
+  border: 2px solid #33ff33;
+  padding: 4px 6px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.terminal input[type=submit], .terminal button {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+  background: #33ff33;
+  color: #000;
+  border: 2px outset #99ff99;
+  padding: 4px 14px;
+}
+.terminal .cursor { animation: blink 1s steps(1, end) infinite; }
+.seal {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 4px double #ffcc00;
+  padding: 6px;
+  box-sizing: border-box;
+  animation: sealglow 2.5s ease-in-out infinite alternate;
+}
+.seal-inner {
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #ffcc00;
+  background: radial-gradient(circle, #332200, #000);
+  color: #ffcc00;
+  text-align: center;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.seal-top, .seal-bottom { font-size: 10px; letter-spacing: 0; }
+.terminal label { font-family: inherit; font-size: inherit; }
+.seal-eye { font-size: 40px; line-height: 48px; }
+@keyframes sealglow { to { box-shadow: 0 0 22px #ffcc00; } }
+.threat { display: flex; border: 2px solid #33ff33; }
+.threat .lvl {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 8px 2px;
+  color: #000;
+  opacity: .5;
+}
+.threat .lvl.now { opacity: 1; outline: 3px solid #fff; outline-offset: -3px; }
+.threat .g { background: #00cc00; } .threat .b { background: #3399ff; }
+.threat .y { background: #ffff00; } .threat .o { background: #ff9900; } .threat .r { background: #ff0000; }
+table.bulletins { width: 100%; border-collapse: collapse; }
+table.bulletins td, table.bulletins th {
+  border: 1px solid #1f7f1f;
+  padding: 6px 8px;
+  vertical-align: top;
+  text-align: left;
+}
+table.bulletins th { color: #ffcc00; }
+table.bulletins .d { color: #ffcc00; white-space: nowrap; width: 1%; }
+table.bulletins .ok { color: #000; background: #33ff33; padding: 0 4px; }
+.terminal ol li { margin-bottom: 4px; }
+
 /* ---------- phones, even though they didn't exist ---------- */
 @media (max-width: 640px) {
   .layout { display: block; }
@@ -472,6 +598,12 @@ button:active, input[type=submit]:active, input[type=reset]:active { border-styl
   .nav .badge-stack { display: none; }
   .masthead h1 { font-size: 30px; }
   .flag { width: 40px; height: 24px; margin: 0 4px; }
-  .photo { width: 42%; }
+  .photo { width: 36%; }
   table.catalog .pic { display: none; }
+  table.catalog { font-size: 13px; }
+  table.catalog td { padding: 4px; overflow-wrap: anywhere; }
+  table.catalog .price { white-space: normal; }
+  .threat .lvl { font-size: 9px; padding: 8px 0; }
+  .terminal { padding: 14px 10px 10px; }
+  .terminal h1 { font-size: 17px; letter-spacing: 1px; }
 }
