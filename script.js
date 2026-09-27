@@ -132,10 +132,11 @@ function safeSet(store, key, value) {
   if (!form || !list) return;
 
   var seed = [
-    { name: "Darlene K.", from: "Tulsa, OK", when: "4/2/98", fav: "Casserole Kit", msg: "Love the web page!! My husband Earl and I have used the Casserole Kit every Sunday since 1991. Keep up the good work and God Bless!!!" },
-    { name: "Tyler", from: "Des Moines, IA", when: "3/29/98", fav: "Other", msg: "cool site. my mom made me sign this. do you guys have a nintendo 64 section?? you should" },
+    { name: "Darlene K.", from: "Tulsa, OK", when: "4/2/98", fav: "Sentinel 3000", msg: "Love the web page!! Since Earl put in the Sentinel 3000 we have not had ONE break-in, and the humming in the basement finally stopped too! Keep up the good work and God Bless!!!" },
+    { name: "Kyle", from: "Des Moines, IA", when: "3/29/98", fav: "Homestead Hardened Shelter", msg: "cool site. my mom made me sign this. does the bunker come with a nintendo 64?? you should put one in" },
+    { name: "Anonymous", from: "Salem, MA", when: "3/21/98", fav: "Other", msg: "The eagle watches. Vigilance." },
     { name: "Webmaster Gary", from: "The American Family HQ", when: "3/14/98", fav: "Other", msg: "Welcome to our new Guestbook! Be the first to sign it (well, second). Remember: No flaming please! This is a FAMILY site." },
-    { name: "Hank Pruitt", from: "Bakersfield, CA", when: "3/10/98", fav: "Porch Swing", msg: "HOW DO I GET TO THE PART WHERE YOU ORDER.  MY GRANDSON SET UP THE COMPUTER.  IS THIS THING ON" }
+    { name: "Hank Pruitt", from: "Bakersfield, CA", when: "3/10/98", fav: "Perimeter Salt Line Kit", msg: "HOW DO I GET TO THE PART WHERE YOU ORDER.  MY GRANDSON SET UP THE COMPUTER.  ALSO THE SALT WORKED.  THANK YOU" }
   ];
 
   function load() {
@@ -186,14 +187,50 @@ function safeSet(store, key, value) {
   render();
 })();
 
-/* ---------- Free catalog request (no actual mail will be sent) ---------- */
+/* ---------- Free consultation request (nothing is actually sent) ---------- */
 (function catalog() {
   var form = document.getElementById("catalog-form");
   if (!form) return;
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-    alert("Thank you! Your FREE 1998 Spring Catalog is on its way.\n\n" +
-          "Please allow 6 to 8 weeks for delivery.");
+    alert("Thank you! A Home Safety Consultant will contact you soon.\n\n" +
+          "Until then, do not open your door for anyone who cannot show you " +
+          "an American Family ID card.");
     form.reset();
+  });
+})();
+
+/* ---------- A.O.P.A. terminal (a toy lock: this is a fan site, not a vault) ---------- */
+(function aopa() {
+  var form = document.getElementById("aopa-form");
+  if (!form) return;
+  var login = document.getElementById("aopa-login");
+  var secret = document.getElementById("aopa-secret");
+  var error = document.getElementById("aopa-error");
+
+  function unlock() {
+    login.hidden = true;
+    secret.hidden = false;
+  }
+  if (safeGet("sessionStorage", "aopa-cleared")) unlock();
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var guess = form.elements.pass.value.replace(/[^a-z]/gi, "").toUpperCase();
+    // the first letters of Our Values, spelled backwards so Gary can't just search for it
+    if (guess === "ECNALIGIV".split("").reverse().join("")) {
+      safeSet("sessionStorage", "aopa-cleared", "1");
+      error.hidden = true;
+      unlock();
+    } else {
+      error.hidden = false;
+      form.elements.pass.value = "";
+    }
+  });
+
+  document.getElementById("aopa-logout").addEventListener("click", function () {
+    try { sessionStorage.removeItem("aopa-cleared"); } catch (e) {}
+    secret.hidden = true;
+    login.hidden = false;
   });
 })();
