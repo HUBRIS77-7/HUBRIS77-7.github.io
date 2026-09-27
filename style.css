@@ -1,0 +1,477 @@
+/* ================================================================
+   THE AMERICAN FAMILY, INC.  -  Official Home Page Style Sheet
+   Cascading Style Sheets Level 1 (CSS1) -- Netscape 4 & IE 4 ready!
+   Webmaster: Gary  (webmaster@americanfamily.com)
+   ================================================================ */
+
+body {
+  margin: 0;
+  padding: 10px 0 30px;
+  color: #000000;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 16px;
+  background-color: #000066;
+  /* tiled star wallpaper (like it came off a Geocities clip art CD) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%23000066'/%3E%3Cpolygon points='16,4 19,13 28,13 21,18 24,27 16,22 8,27 11,18 4,13 13,13' fill='%23ffffff'/%3E%3Cpolygon points='48,36 51,45 60,45 53,50 56,59 48,54 40,59 43,50 36,45 45,45' fill='%23cc0000'/%3E%3Ccircle cx='50' cy='12' r='1.5' fill='%23ffff99'/%3E%3Ccircle cx='12' cy='50' r='1.5' fill='%23ffff99'/%3E%3C/svg%3E");
+}
+
+a:link    { color: #0000ee; }
+a:visited { color: #551a8b; }
+a:hover   { color: #ff0000; background: #ffff00; }
+
+/* ---------- the big main table ---------- */
+.page {
+  width: 780px;
+  max-width: calc(100% - 32px);
+  margin: 0 auto;
+  background: #ffffff;
+  border: 4px ridge #c0c0c0;
+}
+
+.masthead {
+  background: #ffffff;
+  text-align: center;
+  padding: 10px 8px 6px;
+  border-bottom: 6px double #000066;
+  background-image: repeating-linear-gradient(180deg, #ffffff 0 14px, #ffe9e9 14px 28px);
+}
+
+.masthead h1 {
+  margin: 4px 0 0;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 46px;
+  font-style: italic;
+  color: #cc0000;
+  text-shadow: 3px 3px 0 #000066;
+  letter-spacing: 1px;
+}
+
+.masthead .tagline {
+  margin: 2px 0 4px;
+  font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive;
+  color: #000066;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.masthead .flags { font-size: 30px; }
+
+.flag {
+  display: inline-block;
+  width: 60px;
+  height: 36px;
+  vertical-align: middle;
+  margin: 0 12px;
+  border: 1px solid #000;
+  background:
+    linear-gradient(#000066, #000066) 0 0 / 26px 20px no-repeat,
+    repeating-linear-gradient(180deg, #cc0000 0 3px, #ffffff 3px 6px);
+  position: relative;
+  animation: wave 1.2s ease-in-out infinite alternate;
+  transform-origin: left center;
+}
+.flag::before {
+  content: "\2605\2605\2605";
+  position: absolute;
+  left: 2px; top: 2px;
+  font-size: 7px;
+  line-height: 7px;
+  color: #fff;
+  letter-spacing: 0;
+  width: 22px;
+  word-break: break-all;
+}
+.flag.right { animation-delay: .6s; }
+
+@keyframes wave {
+  from { transform: skewY(-4deg) scaleX(1); }
+  to   { transform: skewY(4deg) scaleX(.94); }
+}
+
+/* ---------- marquee strip ---------- */
+.ticker {
+  background: #000066;
+  color: #ffff00;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 3px 0;
+  border-bottom: 2px solid #cc0000;
+}
+
+/* ---------- layout: nav column + content ---------- */
+.layout { display: flex; }
+
+.nav {
+  width: 170px;
+  flex: none;
+  background: #000066;
+  background-image: repeating-linear-gradient(90deg, #000066 0 10px, #00005a 10px 20px);
+  padding: 12px 8px;
+  text-align: center;
+  border-right: 4px ridge #c0c0c0;
+}
+
+.nav .navtitle {
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 0 0 8px;
+  text-decoration: underline;
+}
+
+.nav a.btn {
+  display: block;
+  margin: 0 0 9px;
+  padding: 5px 2px;
+  background: #c0c0c0;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  text-decoration: none;
+  border: 3px outset #ffffff;
+}
+.nav a.btn:hover  { background: #ffff00; color: #cc0000; }
+.nav a.btn:active { border-style: inset; }
+.nav a.btn.here   { background: #cc0000; color: #ffffff; border-style: inset; }
+
+.nav .badge-stack { margin-top: 18px; }
+
+.content {
+  flex: 1;
+  padding: 14px 18px 18px;
+  min-width: 0;
+  background: #fffff0;
+}
+
+.content h2 {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000066;
+  font-size: 24px;
+  margin: 10px 0 6px;
+  border-bottom: 2px solid #cc0000;
+}
+
+.content h3 {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #cc0000;
+  font-size: 18px;
+  margin: 14px 0 4px;
+}
+
+.comic { font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive; }
+.center { text-align: center; }
+.red { color: #cc0000; }
+.navy { color: #000066; }
+.small { font-size: 12px; }
+
+hr.rainbow {
+  height: 6px;
+  border: 0;
+  margin: 16px 0;
+  background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red);
+}
+
+hr.flaghr {
+  height: 9px;
+  border: 0;
+  margin: 16px 0;
+  background: repeating-linear-gradient(90deg, #cc0000 0 20px, #ffffff 20px 30px, #000066 30px 50px, #ffffff 50px 60px);
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #999;
+}
+
+/* ---------- blinky things ---------- */
+.blink { animation: blink 1s steps(1, end) infinite; }
+@keyframes blink { 50% { visibility: hidden; } }
+
+.new {
+  display: inline-block;
+  background: #ff0000;
+  color: #ffff00;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 11px;
+  padding: 1px 4px;
+  border: 1px solid #000;
+  transform: rotate(-8deg);
+  animation: newpulse .6s ease-in-out infinite alternate;
+}
+@keyframes newpulse { to { background: #ffff00; color: #ff0000; transform: rotate(8deg) scale(1.15); } }
+
+.rainbow-text {
+  font-weight: bold;
+  background: linear-gradient(90deg, red, orange, #cccc00, green, blue, indigo, violet);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: huerotate 3s linear infinite;
+}
+@keyframes huerotate { to { filter: hue-rotate(360deg); } }
+
+/* ---------- under construction sign ---------- */
+.construction {
+  display: inline-block;
+  margin: 8px auto;
+  padding: 6px;
+  background: repeating-linear-gradient(45deg, #ffcc00 0 14px, #000000 14px 28px);
+  border: 2px solid #000;
+}
+.construction > span {
+  display: block;
+  background: #ffcc00;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 6px 10px;
+}
+.digger { display: inline-block; font-size: 20px; animation: dig .5s ease-in-out infinite alternate; }
+@keyframes dig { to { transform: translateY(-3px) rotate(-12deg); } }
+
+/* ---------- 88x31 style buttons ---------- */
+.b88 {
+  display: inline-block;
+  width: 88px;
+  height: 31px;
+  box-sizing: border-box;
+  margin: 3px;
+  vertical-align: middle;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: bold;
+  line-height: 11px;
+  text-align: center;
+  padding-top: 3px;
+  border: 2px outset #dddddd;
+  overflow: hidden;
+  text-decoration: none;
+}
+.b88.netscape { background: linear-gradient(#000080, #1a1aa6); color: #fff; }
+.b88.netscape b { color: #00ffcc; font-size: 11px; }
+.b88.ie { background: linear-gradient(#ffffff, #cce0ff); color: #003399; }
+.b88.y2k { background: #00aa00; color: #ffffff; }
+.b88.aol { background: linear-gradient(#ffffff, #ffe066); color: #003366; }
+.b88.usa { background: #000066; color: #fff; border: 3px solid; border-image: repeating-linear-gradient(90deg, #cc0000 0 4px, #fff 4px 8px) 3; }
+.b88.html { background: #000; color: #00ff00; font-family: "Courier New", monospace; }
+
+/* ---------- hit counter ---------- */
+.counter {
+  display: inline-block;
+  background: #000;
+  padding: 3px;
+  border: 2px inset #888;
+}
+.counter .digit {
+  display: inline-block;
+  width: 16px;
+  margin: 0 1px;
+  background: linear-gradient(#333 0 48%, #111 52% 100%);
+  color: #33ff33;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 26px;
+}
+
+/* ---------- misc boxes ---------- */
+.box {
+  border: 3px double #000066;
+  background: #ffffff;
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+.box.yellow { background: #ffffcc; border-color: #cc9900; }
+.box.blue   { background: #e6ecff; }
+
+.whatsnew li { margin-bottom: 6px; }
+.whatsnew .date { font-family: "Courier New", monospace; color: #666; font-size: 13px; }
+
+table.catalog {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  border: 3px outset #c0c0c0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+table.catalog th {
+  background: #000066;
+  color: #ffffff;
+  padding: 5px;
+  border: 1px inset #c0c0c0;
+}
+table.catalog td {
+  background: #ffffff;
+  padding: 6px;
+  border: 1px inset #c0c0c0;
+  vertical-align: top;
+}
+table.catalog tr:nth-child(even) td { background: #eef2ff; }
+table.catalog .price { color: #cc0000; font-weight: bold; white-space: nowrap; }
+table.catalog .pic {
+  font-size: 34px;
+  text-align: center;
+  width: 56px;
+}
+
+/* ---------- product "photos" (made of pure CSS, very high tech) ---------- */
+.photo {
+  display: inline-block;
+  border: 5px ridge #c8a24a;
+  background: #fff;
+  padding: 4px;
+  margin: 6px;
+  text-align: center;
+  vertical-align: top;
+  width: 150px;
+}
+.photo .pic {
+  height: 110px;
+  font-size: 64px;
+  line-height: 110px;
+  background: radial-gradient(circle at 50% 40%, #e6f0ff, #9fb7e8);
+}
+.photo .cap {
+  font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive;
+  font-size: 13px;
+  padding: 4px 0 2px;
+}
+
+/* ---------- forms ---------- */
+fieldset {
+  border: 2px groove #c0c0c0;
+  background: #f0f0f0;
+  margin: 10px 0;
+  padding: 8px 12px 12px;
+}
+legend {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  color: #000066;
+}
+label { font-family: Arial, Helvetica, sans-serif; font-size: 14px; }
+textarea { width: 100%; }
+input[type=text], input[type=email], textarea, select {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  border: 2px inset #c0c0c0;
+  background: #ffffff;
+  padding: 2px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+button, input[type=submit], input[type=reset] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  background: #c0c0c0;
+  border: 3px outset #ffffff;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+button:active, input[type=submit]:active, input[type=reset]:active { border-style: inset; }
+
+.guest {
+  border: 2px solid #000066;
+  background: #ffffff;
+  margin: 10px 0;
+}
+.guest .ghead {
+  background: #000066;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  padding: 3px 8px;
+}
+.guest .ghead b { color: #ffff00; }
+.guest .gbody {
+  padding: 8px;
+  font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive;
+  font-size: 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- fake MIDI player ---------- */
+.midi {
+  display: inline-block;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  padding: 4px 6px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  text-align: left;
+  width: 140px;
+  box-sizing: border-box;
+}
+.midi .title {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+  font-weight: bold;
+  padding: 1px 3px;
+  margin: -2px -4px 4px;
+}
+.midi .lcd {
+  background: #000;
+  color: #00ff00;
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  padding: 2px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.midi button { font-size: 11px; padding: 1px 6px; }
+
+/* ---------- footer ---------- */
+.footer {
+  background: #c0c0c0;
+  border-top: 4px ridge #ffffff;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  padding: 10px;
+}
+.footer .webring {
+  display: inline-block;
+  border: 2px outset #fff;
+  background: #ffffcc;
+  padding: 4px 10px;
+  margin: 6px 0;
+}
+
+/* ---------- sparkle cursor trail ---------- */
+.sparkle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  font-size: 14px;
+  animation: sparklefall .9s linear forwards;
+}
+@keyframes sparklefall {
+  to { transform: translateY(28px) rotate(180deg); opacity: 0; }
+}
+
+/* ---------- phones, even though they didn't exist ---------- */
+@media (max-width: 640px) {
+  .layout { display: block; }
+  .nav {
+    width: auto;
+    border-right: 0;
+    border-bottom: 4px ridge #c0c0c0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+  .nav .navtitle { width: 100%; }
+  .nav a.btn { margin: 0; flex: 1 1 40%; }
+  .nav .badge-stack { display: none; }
+  .masthead h1 { font-size: 30px; }
+  .flag { width: 40px; height: 24px; margin: 0 4px; }
+  .photo { width: 42%; }
+  table.catalog .pic { display: none; }
+}
