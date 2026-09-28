@@ -199,38 +199,3 @@ function safeSet(store, key, value) {
     form.reset();
   });
 })();
-
-/* ---------- A.O.P.A. terminal (a toy lock: this is a fan site, not a vault) ---------- */
-(function aopa() {
-  var form = document.getElementById("aopa-form");
-  if (!form) return;
-  var login = document.getElementById("aopa-login");
-  var secret = document.getElementById("aopa-secret");
-  var error = document.getElementById("aopa-error");
-
-  function unlock() {
-    login.hidden = true;
-    secret.hidden = false;
-  }
-  if (safeGet("sessionStorage", "aopa-cleared")) unlock();
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var guess = form.elements.pass.value.replace(/[^a-z]/gi, "").toUpperCase();
-    // the first letters of Our Values, spelled backwards so Gary can't just search for it
-    if (guess === "ECNALIGIV".split("").reverse().join("")) {
-      safeSet("sessionStorage", "aopa-cleared", "1");
-      error.hidden = true;
-      unlock();
-    } else {
-      error.hidden = false;
-      form.elements.pass.value = "";
-    }
-  });
-
-  document.getElementById("aopa-logout").addEventListener("click", function () {
-    try { sessionStorage.removeItem("aopa-cleared"); } catch (e) {}
-    secret.hidden = true;
-    login.hidden = false;
-  });
-})();

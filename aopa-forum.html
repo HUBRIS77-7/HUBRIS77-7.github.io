@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>A.O.P.A. Agent Forum</title>
+<script>try { if (!sessionStorage.getItem("aopa-cleared")) location.replace("aopa.html"); } catch (e) { location.replace("aopa.html"); }</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="aopa.css">
+</head>
+<body class="aopa">
+<div class="console">
+  <div class="con-head">
+    <div class="con-title"><span class="mini-seal">&#128065;</span> A.O.P.A. SECURE INTRANET v3.0</div>
+    <div class="con-nav">
+      <a href="aopa.html">DASHBOARD</a>
+      <a href="aopa-incidents.html">INCIDENTS</a>
+      <a href="aopa-forum.html" class="here">FORUM</a>
+      <a href="aopa-inventory.html">INVENTORY</a>
+      <button type="button" class="crt-toggle" data-crt aria-pressed="true">CRT: ON</button>
+      <button type="button" data-logoff>LOG OFF</button>
+    </div>
+  </div>
+
+  <div class="con-body" id="forum">
+    <h1>// AGENT BULLETIN BOARD SYSTEM</h1>
+    <p class="dim">A.O.P.A. BBS NODE 1 &bull; 14,400 BAUD &bull; KEEP IT PROFESSIONAL. THE COUNCIL READS EVERYTHING.</p>
+    <form class="agent-bar" id="agent-form">
+      <label>POSTING AS: <input type="text" name="agent" maxlength="24" spellcheck="false"></label>
+      <button type="submit" class="cmd ghost">SET CODENAME</button>
+      <span class="dim small" id="agent-ok"></span>
+    </form>
+    <div id="forum-view"></div>
+  </div>
+
+  <p class="center dim small">THE AMERICAN OCCULT PROTECTION ALLIANCE DOES NOT EXIST. (It is fictional. So is everything else on this site.)<br>
+    Posts you write are saved on this terminal only (your browser).</p>
+</div>
+<script src="aopa.js"></script>
+<script src="aopa-forum.js"></script>
+</body>
+</html>

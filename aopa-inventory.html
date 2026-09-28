@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>A.O.P.A. Cargo Manifest</title>
+<script>try { if (!sessionStorage.getItem("aopa-cleared")) location.replace("aopa.html"); } catch (e) { location.replace("aopa.html"); }</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="aopa.css">
+</head>
+<body class="aopa">
+<div class="console">
+  <div class="con-head">
+    <div class="con-title"><span class="mini-seal">&#128065;</span> A.O.P.A. SECURE INTRANET v3.0</div>
+    <div class="con-nav">
+      <a href="aopa.html">DASHBOARD</a>
+      <a href="aopa-incidents.html">INCIDENTS</a>
+      <a href="aopa-forum.html">FORUM</a>
+      <a href="aopa-inventory.html" class="here">INVENTORY</a>
+      <button type="button" class="crt-toggle" data-crt aria-pressed="true">CRT: ON</button>
+      <button type="button" data-logoff>LOG OFF</button>
+    </div>
+  </div>
+
+  <div class="con-body" id="inv">
+    <h1>// EQUIPMENT CARGO MANIFEST</h1>
+    <p class="dim">DEPOT 7 &bull; COUNCIL BLUFFS, IOWA &bull; SHIPPED UNDER COVER OF THE AMERICAN FAMILY, INC. HOME PROTECTION PRODUCTS</p>
+
+    <div class="manifest-head" id="inv-totals"></div>
+
+    <h2>// CARGO HOLDS</h2>
+    <div class="holds" id="inv-holds" role="group" aria-label="Filter by cargo hold"></div>
+
+    <h2>// MANIFEST</h2>
+    <div class="filterbar">
+      <label>SEARCH: <input type="search" id="inv-q" placeholder="item, cover name, manifest #"></label>
+      <label><input type="checkbox" id="inv-low"> LOW / OUT ONLY</label>
+      <span class="dim" id="inv-shown"></span>
+    </div>
+    <p class="dim small">[-] SIGNS ONE UNIT OUT TO YOU &bull; [+] RETURNS ONE UNIT &bull; HOLD F ITEMS REQUIRE COUNCIL AUTHORIZATION. CLICK A COLUMN TO SORT.</p>
+    <div class="cargo-wrap">
+      <table class="cargo" id="inv-table"></table>
+    </div>
+
+    <h2>// RECEIVE INCOMING CARGO</h2>
+    <form id="inv-form" autocomplete="off">
+      <div class="form-grid">
+        <label class="wide">ITEM (TRUE DESIGNATION)
+          <input type="text" name="name" maxlength="60" required placeholder="e.g. Silver-plated letter opener"></label>
+        <label>COVER NAME (WHAT CIVILIANS SEE)
+          <input type="text" name="cover" maxlength="60" placeholder="e.g. Executive Desk Set"></label>
+        <label>HOLD
+          <select name="hold" id="inv-hold-sel" required></select></label>
+        <label>QUANTITY
+          <input type="number" name="qty" min="1" max="9999" value="1" required></label>
+        <label>UNIT WEIGHT (LB)
+          <input type="number" name="wt" min="0" max="99999" step="0.1" value="1" required></label>
+        <label>HAZARD CLASS
+          <select name="haz">
+            <option value="0">NONE</option>
+            <option value="1">I</option>
+            <option value="2">II</option>
+            <option value="3">III</option>
+            <option value="4">IV</option>
+            <option value="5">V</option>
+          </select></label>
+      </div>
+      <p><input type="submit" value="LOG INTO MANIFEST"></p>
+    </form>
+
+    <h2>// REQUISITION LOG</h2>
+    <div class="log" id="inv-log" aria-live="polite"></div>
+    <p><button type="button" class="cmd warn" id="inv-reset">RESET MANIFEST</button>
+      <span class="dim small">Counts, received cargo and the log are kept on this terminal only (your browser).</span></p>
+  </div>
+
+  <p class="center dim small">THE AMERICAN OCCULT PROTECTION ALLIANCE DOES NOT EXIST. (It is fictional. So is everything else on this site.)</p>
+</div>
+<script src="aopa.js"></script>
+<script src="aopa-inventory.js"></script>
+</body>
+</html>
