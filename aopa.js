@@ -177,6 +177,56 @@ var AOPA = (function () {
   };
 })();
 
+/* ---------- CRT tube: bowed scanlines, rolling scan bar, vignette, flicker ---------- */
+(function crt() {
+  var NS = "http://www.w3.org/2000/svg";
+  var tube = document.createElement("div");
+  tube.className = "crt";
+  tube.setAttribute("aria-hidden", "true");
+  var svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", "crt-lines");
+  var lines = document.createElementNS(NS, "path");
+  svg.appendChild(lines);
+  tube.appendChild(svg);
+  ["crt-roll", "crt-glass"].forEach(function (c) {
+    var d = document.createElement("div");
+    d.className = c;
+    tube.appendChild(d);
+  });
+  document.body.appendChild(tube);
+
+  // Horizontal scanlines, bent like they're drawn on the inside of a curved tube:
+  // the further a line sits from the middle of the screen, the more its ends droop toward it.
+  var GAP = 3, BOW = 0.035;
+  function draw() {
+    var w = window.innerWidth, h = window.innerHeight, cx = w / 2, cy = h / 2, d = "";
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    for (var y = 0.5; y < h; y += GAP) {
+      var sag = (cy - y) * BOW;   // how far the ends move toward the center
+      d += "M0 " + (y + sag).toFixed(1) + "Q" + cx + " " + (y - sag).toFixed(1) + " " + w + " " + (y + sag).toFixed(1);
+    }
+    lines.setAttribute("d", d);
+  }
+  var t = null;
+  window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(draw, 120); });
+  draw();
+
+  function apply(on) {
+    document.body.classList.toggle("crt-on", on);
+    Array.prototype.forEach.call(document.querySelectorAll("[data-crt]"), function (b) {
+      b.textContent = "CRT: " + (on ? "ON" : "OFF");
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  apply(AOPA.get("localStorage", "aopa-crt") !== "off");
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest || !e.target.closest("[data-crt]")) return;
+    var on = !document.body.classList.contains("crt-on");
+    AOPA.set("localStorage", "aopa-crt", on ? "on" : "off");
+    apply(on);
+  });
+})();
+
 /* ---------- login (a toy lock: this is a fan site, not a vault) ---------- */
 (function login() {
   var form = document.getElementById("aopa-form");
