@@ -40,10 +40,11 @@ var AOPA = (function () {
     if (p.length !== 3) return iso || "??/??/??";
     return p[1] + "/" + p[2] + "/" + p[0].slice(2);
   }
-  // today's month/day, but it is always 1998 in here
+  // today's date, capped at the last day the report form accepts
   function todayISO() {
     var d = new Date();
-    return "1998-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    var iso = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    return iso > "2028-12-31" ? "2028-12-31" : iso;
   }
 
   var STATES = (window.AOPA_STATES || []).map(function (s) {

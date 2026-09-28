@@ -98,7 +98,8 @@
   function stamp() {
     var d = new Date();
     var h = d.getHours(), m = ("0" + d.getMinutes()).slice(-2);
-    return ("0" + (d.getMonth() + 1)).slice(-2) + "/" + ("0" + d.getDate()).slice(-2) + "/98 " +
+    return ("0" + (d.getMonth() + 1)).slice(-2) + "/" + ("0" + d.getDate()).slice(-2) + "/" +
+      String(d.getFullYear()).slice(-2) + " " +
       ((h % 12) || 12) + ":" + m + (h < 12 ? " AM" : " PM");
   }
 
@@ -112,12 +113,12 @@
     });
   }
 
-  // "03/13/98 11:52 PM" -> sortable "03131552"-style key (it is always 1998 in here)
+  // "03/13/98 11:52 PM" -> sortable "199803132352" key (two-digit years: 50-99 are 19xx, 00-49 are 20xx)
   function key(d) {
-    var m = /^(\d\d)\/(\d\d)\/\d\d (\d+):(\d\d) (AM|PM)$/.exec(d || "");
+    var m = /^(\d\d)\/(\d\d)\/(\d\d) (\d+):(\d\d) (AM|PM)$/.exec(d || "");
     if (!m) return "";
-    var h = (+m[3] % 12) + (m[5] === "PM" ? 12 : 0);
-    return m[1] + m[2] + ("0" + h).slice(-2) + m[4];
+    var h = (+m[4] % 12) + (m[6] === "PM" ? 12 : 0);
+    return (+m[3] < 50 ? "20" : "19") + m[3] + m[1] + m[2] + ("0" + h).slice(-2) + m[5];
   }
   function lastPost(t) { return t.posts[t.posts.length - 1]; }
   function byActivity(x, y) {
