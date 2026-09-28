@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>A.O.P.A. Incident Register</title>
+<script>try { if (!sessionStorage.getItem("aopa-cleared")) location.replace("aopa.html"); } catch (e) { location.replace("aopa.html"); }</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="aopa.css">
+</head>
+<body class="aopa">
+<div class="console">
+  <div class="con-head">
+    <div class="con-title"><span class="mini-seal">&#128065;</span> A.O.P.A. SECURE INTRANET v3.0</div>
+    <div class="con-nav">
+      <a href="aopa.html">DASHBOARD</a>
+      <a href="aopa-incidents.html" class="here">INCIDENTS</a>
+      <a href="aopa-forum.html">FORUM</a>
+      <a href="aopa-inventory.html">INVENTORY</a>
+      <button type="button" data-logoff>LOG OFF</button>
+    </div>
+  </div>
+
+  <div class="con-body" id="inc-page">
+    <h1>// ANOMALOUS INCIDENT REGISTER</h1>
+    <p class="dim">ALL 50 STATES &bull; FORM AOPA-7 (REV. 1998) &bull; IF IT CAN READ THIS, IT HAS ALREADY BEEN REPORTED.</p>
+
+    <div class="division-blurbs">
+      <div class="cat-magic"><b>MAGIC DIVISION</b>Deliberate workings: curses, hexes, wishes, ley lines, fae bargains, anything with a practitioner behind it.</div>
+      <div class="cat-occult"><b>OCCULT DIVISION</b>Hauntings, possessions, entities, cryptids, rituals, and things that were here before us.</div>
+      <div class="cat-scientific"><b>SCIENTIFIC DIVISION</b>Physics, time, radio, biology and machines behaving in ways they are not allowed to.</div>
+    </div>
+
+    <h2 id="report">// FILE A REPORT</h2>
+    <form id="inc-form" autocomplete="off">
+      <div class="form-grid">
+        <fieldset class="cats wide">
+          <legend>CATEGORY (REQUIRED)</legend>
+          <label><input type="radio" name="cat" value="MAGIC" required> MAGIC</label>
+          <label><input type="radio" name="cat" value="OCCULT"> OCCULT</label>
+          <label><input type="radio" name="cat" value="SCIENTIFIC"> SCIENTIFIC</label>
+        </fieldset>
+        <label class="wide">INCIDENT TITLE
+          <input type="text" name="title" maxlength="80" required placeholder="e.g. Scarecrow facing a different way each morning"></label>
+        <label>STATE
+          <select name="st" required><option value="">-- SELECT STATE --</option></select></label>
+        <label>CITY / TOWN / LANDMARK
+          <input type="text" name="city" maxlength="50" required></label>
+        <label>DATE OBSERVED
+          <input type="date" name="date" min="1776-07-04" max="1999-12-31" required></label>
+        <label>THREAT CLASS
+          <select name="cls">
+            <option value="I">I - NUISANCE</option>
+            <option value="II" selected>II - MINOR</option>
+            <option value="III">III - SERIOUS</option>
+            <option value="IV">IV - SEVERE</option>
+            <option value="V">V - DO NOT APPROACH</option>
+          </select></label>
+        <label>STATUS
+          <select name="status">
+            <option>OPEN</option>
+            <option>UNDER REVIEW</option>
+            <option>CONTAINED</option>
+            <option>RESOLVED</option>
+          </select></label>
+        <label>REPORTING AGENT
+          <input type="text" name="agent" maxlength="30"></label>
+        <label class="wide">DESCRIPTION OF EVENT
+          <textarea name="body" rows="5" maxlength="1500" required placeholder="What happened. Where it is now. Whether it knows your name."></textarea></label>
+      </div>
+      <p><input type="submit" value="TRANSMIT REPORT"> <span class="dim small">Reports are kept on this terminal only (your browser). They appear on the Dashboard map immediately.</span></p>
+      <p id="inc-ok" class="notice" hidden></p>
+    </form>
+
+    <h2>// INCIDENT LOG</h2>
+    <div class="tabs" id="inc-tabs" role="group" aria-label="Filter by category"></div>
+    <div class="filterbar">
+      <label>STATE: <select id="inc-state"><option value="">ALL 50 STATES</option></select></label>
+      <label>SEARCH: <input type="search" id="inc-q" placeholder="keyword"></label>
+      <span class="dim" id="inc-shown"></span>
+    </div>
+    <p class="dim small">ACTIVITY BY STATE (click a state to filter):</p>
+    <div class="state-board" id="state-board"></div>
+    <div class="inc-list" id="inc-list"></div>
+  </div>
+
+  <p class="center dim small">THE AMERICAN OCCULT PROTECTION ALLIANCE DOES NOT EXIST. (It is fictional. So is everything else on this site.)</p>
+</div>
+<script src="aopa-map.js"></script>
+<script src="aopa.js"></script>
+<script src="aopa-incidents.js"></script>
+</body>
+</html>
