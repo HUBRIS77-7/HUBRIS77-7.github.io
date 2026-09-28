@@ -132,9 +132,9 @@ function safeSet(store, key, value) {
   if (!form || !list) return;
 
   var seed = [
-    { name: "Darlene K.", from: "Tulsa, OK", when: "4/2/98", fav: "Sentinel 3000", msg: "Love the web page!! Since Earl put in the Sentinel 3000 we have not had ONE break-in, and the humming in the basement finally stopped too! Keep up the good work and God Bless!!!" },
+    { name: "Darlene K.", from: "Tulsa, OK", when: "4/2/98", fav: "Sentinel 3000", msg: "Love the web page!! Since Earl put in the Sentinel 3000 we have not had ONE break-in, and the buzzing in the attic finally stopped too! Keep up the good work and God Bless!!!" },
     { name: "Kyle", from: "Des Moines, IA", when: "3/29/98", fav: "Homestead Hardened Shelter", msg: "cool site. my mom made me sign this. does the bunker come with a nintendo 64?? you should put one in" },
-    { name: "Anonymous", from: "Salem, MA", when: "3/21/98", fav: "Other", msg: "The eagle watches. Vigilance." },
+    { name: "Anonymous", from: "Salem, MA", when: "3/21/98", fav: "Sentinel 3000", msg: "Worked well enough for me. Let me in, they didn't even notice." },
     { name: "Webmaster Gary", from: "The American Family HQ", when: "3/14/98", fav: "Other", msg: "Welcome to our new Guestbook! Be the first to sign it (well, second). Remember: No flaming please! This is a FAMILY site." },
     { name: "Hank Pruitt", from: "Bakersfield, CA", when: "3/10/98", fav: "Perimeter Salt Line Kit", msg: "HOW DO I GET TO THE PART WHERE YOU ORDER.  MY GRANDSON SET UP THE COMPUTER.  ALSO THE SALT WORKED.  THANK YOU" }
   ];
